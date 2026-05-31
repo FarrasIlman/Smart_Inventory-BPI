@@ -138,7 +138,6 @@
                         </form>
 
                         {{-- MODAL RESTOCK --}}
-                        {{-- Tambahkan 'fixed inset-0' dan 'z-index' tinggi supaya melayang di atas tabel --}}
                         <div x-show="restockModal" 
                             class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4" 
                             style="display: none;" x-cloak x-transition>
