@@ -25,7 +25,6 @@
                 </svg>
             </a>
             <div>
-                {{-- Judul Dinamis --}}
                 <h1 class="text-2xl font-black text-slate-800 tracking-tight">
                     {{ $isFinished ? 'Rekapitulasi Bahan Baku' : 'Kalkulasi Bahan Baku' }}
                 </h1>
@@ -47,7 +46,7 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        {{-- Tabel Kebutuhan (Kiri) --}}
+        {{-- Tabel Kebutuhan --}}
         <div class="lg:col-span-2 bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center">
                 <h3 class="text-slate-800 font-bold text-sm uppercase tracking-widest">
@@ -138,7 +137,7 @@
             </div>
         </div>
 
-        {{-- Ringkasan (Kanan) --}}
+        {{-- Summary --}}
         <div class="space-y-6">
             <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 p-8 sticky top-6">
                 <h3 class="font-black text-slate-800 text-lg mb-6 tracking-tight italic">Ringkasan Produksi</h3>
@@ -194,7 +193,6 @@
                 <form action="{{ route('orders.startProduction', ['id' => $order->id_order, 'deduct' => 'yes']) }}" method="POST">
                     @csrf
                     <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-3xl font-bold text-sm hover:bg-blue-600 transition-all flex flex-col items-center">
-                        {{-- MODIFIKASI: Update Label agar sesuai logika Stock Locked --}}
                         <span>Kunci & Amankan Bahan</span>
                         <span class="text-[10px] opacity-40 font-normal italic">Bahan di-booking agar tidak dipakai order lain</span>
                     </button>
@@ -233,5 +231,5 @@
         </div>
     </div>
 
-</div> {{-- Penutup x-data --}}
+</div>
 @endsection
