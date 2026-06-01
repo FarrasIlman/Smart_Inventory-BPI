@@ -39,7 +39,6 @@
                 </div>
             </div>
 
-            {{-- TAMBAHAN (AMAN, DI LUAR GRID) --}}
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">No Telepon</label>
@@ -65,7 +64,7 @@
                 </div>
             </div>
 
-            {{-- TAMBAHAN HARGA (TIDAK MASUK GRID) --}}
+            {{-- TAMBAHAN HARGA --}}
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Harga Satuan</label>
                 <input type="number" name="harga_satuan" required class="w-full bg-green-50 border border-green-200 text-green-700 rounded-2xl px-5 py-3 text-sm">
@@ -108,7 +107,7 @@
 
             <hr class="border-slate-50">
 
-            {{-- SIZE (ASLI, TIDAK DIUBAH) --}}
+            {{-- SIZE --}}
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Rincian Ukuran & Jumlah</label>
 

@@ -40,7 +40,7 @@ Route::resource('suppliers', SupplierController::class);
 // Order Controller
 use App\Http\Controllers\OrderController;
 Route::resource('orders', OrderController::class);
-Route::get('orders/{id}/check-materials', [OrderController::class, 'checkMaterials'])->name('orders.check'); //Route cek kebutuhan bahan
+Route::get('orders/{id}/check-materials', [OrderController::class, 'checkMaterials'])->name('orders.check');
 
 Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
 

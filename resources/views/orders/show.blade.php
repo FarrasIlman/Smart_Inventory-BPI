@@ -84,8 +84,6 @@
             </div>
 
             <!-- DISTRIBUSI SIZE -->
-            
-
             <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 p-8">
                 <h3 class="text-slate-800 font-bold text-lg mb-6">Distribusi Ukuran</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">

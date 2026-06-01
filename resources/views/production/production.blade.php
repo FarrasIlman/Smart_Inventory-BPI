@@ -140,7 +140,7 @@
                 </a>
             </div>
 
-            {{-- MODAL QUICK START (LAMA) --}}
+            {{-- MODAL QUICK START --}}
             <div x-show="showQuickStart" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
                 <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showQuickStart = false"></div>
                 <div class="bg-white w-full max-w-sm rounded-[40px] p-10 relative z-10 shadow-2xl text-center">
@@ -159,7 +159,7 @@
                 </div>
             </div>
 
-            {{-- MODAL FINISH PRODUCTION (BARU) --}}
+            {{-- MODAL FINISH PRODUCTION --}}
             <div x-show="showFinishModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
                 <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showFinishModal = false"></div>
                 <div class="bg-white w-full max-w-xl rounded-[40px] p-10 relative z-10 shadow-2xl overflow-hidden">

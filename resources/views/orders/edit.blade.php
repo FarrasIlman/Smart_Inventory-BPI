@@ -61,8 +61,6 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- TAMBAHAN: No Telepon -->
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                         No Telepon
@@ -71,8 +69,6 @@
                         value="{{ old('no_telepon', $order->no_telepon) }}"
                         class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm">
                 </div>
-
-                <!-- TAMBAHAN: Alamat -->
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                         Alamat
@@ -116,7 +112,6 @@
                     </div>
                 </div>
 
-                <!-- TAMBAHAN: Harga -->
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                         Harga Satuan
@@ -241,11 +236,11 @@
         </div>
     </form>
     <script>
-    // Logic Alpine.js untuk menangani pratinjau gambar dan drag-and-drop
+    // Logic Alpine.js untuk gambar dan drag-and-drop
         function imagePreviewHandler() {
             return {
-                imageUrl: null, // Menyimpan URL sementara untuk pratinjau
-                isDragging: false, // Status apakah file sedang diseret di atas dropzone
+                imageUrl: null,
+                isDragging: false,
 
                 // Menangani ketika file dipilih melalui klik (input biasa)
                 fileChosen(event) {
@@ -257,7 +252,6 @@
                     this.isDragging = false;
                     const file = event.dataTransfer.files[0];
                     if (file && file.type.startsWith('image/')) {
-                        // Set file ke input file asli agar terkirim saat submit
                         document.getElementById('gambar_desain').files = event.dataTransfer.files;
                         this.fileToUrl(file);
                     } else {
@@ -273,14 +267,13 @@
                     const reader = new FileReader();
                     reader.readAsDataURL(file);
                     reader.onload = (e) => {
-                        this.imageUrl = e.target.result; // URL Base64
+                        this.imageUrl = e.target.result;
                     };
                 },
 
                 // Menghapus pratinjau baru dan kembali ke gambar lama
                 resetImage() {
                     this.imageUrl = null;
-                    // Reset juga input file-nya
                     document.getElementById('gambar_desain').value = '';
                 }
             }

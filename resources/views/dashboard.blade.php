@@ -3,7 +3,7 @@
 @section('content')
 <div class="p-6 md:p-10 bg-[#F8FAFC] min-h-screen">
     
-    {{-- Top Header: Greeting --}}
+    {{-- Top Header --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    {{-- Section 1: Financial Bento Grid (Score Cards) --}}
+    {{-- Section 1: Financial Score Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {{-- Card Penjualan --}}
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50 relative overflow-hidden">

@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-10" x-data="{ showAddModal: false, showEditModal: false, currentProduct: {} }">
     
-    {{-- Header Section: Desain Lebih Minimalis --}}
+    {{-- Header Section --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
         <div>
             <h1 class="text-3xl font-black text-slate-900 tracking-tighter">Kelola Data Produk</h1>
@@ -24,12 +24,12 @@
         </div>
     </div>
 
-    {{-- Grid List: Compact Card (4 Kolom di Laptop) --}}
+    {{-- Grid List --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         @forelse($products as $p)
         <div class="bg-white rounded-[30px] border border-slate-100 shadow-sm overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 relative flex flex-col">
             
-            {{-- Category Badge: Diperkecil --}}
+            {{-- Category Badge --}}
             <div class="absolute top-3.5 left-3.5 z-10">
                 <span class="bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-blue-700 shadow-sm border border-slate-50">
                     {{ $p->kategori_produk ?? ($p->category->name ?? 'Umum') }}
@@ -48,14 +48,14 @@
                 @endif
             </div>
 
-            {{-- Content Area: Hierarki Jelas, Padat --}}
+            {{-- Content Area --}}
             <div class="p-6 flex flex-col flex-grow justify-between">
                 <div>
                     <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">ID Artikel #{{ $p->id_product }}</p>
                     <h3 class="font-black text-slate-900 uppercase text-sm leading-tight line-clamp-2 min-h-[2.5rem]">{{ $p->nama_produk }}</h3>
                 </div>
                 
-                {{-- Bagian Bawah: Harga Pop & Aksi Slim --}}
+                {{-- Bagian Bawah --}}
                 <div class="mt-6 pt-5 border-t border-slate-50 flex justify-between items-end">
                     <div class="flex flex-col">
                         <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Estimasi Harga</p>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
 
-                    {{-- Actions: Ikon Bersih --}}
+                    {{-- Actions --}}
                     <div class="flex gap-1">
                         <button @click="currentProduct = {{ $p }}; showEditModal = true" 
                             class="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm">
