@@ -4,10 +4,10 @@
 <div class="p-6 md:p-10 bg-[#F8FAFC] min-h-screen">
     
     {{-- Top Header --}}
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
-            <p class="text-slate-500 font-medium">Selamat datang kembali, <span class="text-blue-600">{{ Auth::user()->name }}</span>. Berikut ringkasan bisnis Anda hari ini.</p>
+            <p class="text-slate-500 font-medium">Selamat datang kembali, <span class="text-blue-600">{{ Auth::user()->name }}</span>. Berikut ringkasan bisnis Anda.</p>
         </div>
         <div class="flex items-center gap-3">
             <div class="bg-white p-2 px-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-2">
@@ -15,6 +15,28 @@
                 <span class="text-sm font-bold text-slate-700">{{ date('d M Y') }}</span>
             </div>
         </div>
+    </div>
+
+    {{-- Section Form Filter Rentang Waktu Dashboard --}}
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm mb-8">
+        <form action="{{ url()->current() }}" method="GET" class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[180px]">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Mulai Tanggal</label>
+                <input type="date" name="start_date" value="{{ $start_date }}" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            </div>
+            <div class="flex-1 min-w-[180px]">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Sampai Tanggal</label>
+                <input type="date" name="end_date" value="{{ $end_date }}" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+                Filter Dashboard
+            </button>
+            @if(request()->has('start_date'))
+                <a href="{{ url()->current() }}" class="bg-slate-100 text-slate-600 px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                    Reset
+                </a>
+            @endif
+        </form>
     </div>
 
     {{-- Section 1: Financial Score Cards --}}
@@ -31,7 +53,7 @@
             <h2 class="text-3xl font-black text-slate-900 mt-1">Rp {{ number_format($omzetJual, 0, ',', '.') }}</h2>
             <div class="mt-4 flex items-center gap-2 text-[11px] text-slate-400">
                 <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                <span>Data dari pesanan selesai</span>
+                <span>Data berdasarkan periode terpilih</span>
             </div>
         </div>
 
@@ -45,7 +67,7 @@
             </div>
             <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih</p>
             <h2 class="text-3xl font-black text-white mt-1">Rp {{ number_format($labaBersih, 0, ',', '.') }}</h2>
-            <p class="mt-4 text-[11px] text-slate-500 italic font-medium">Keuntungan bersih dari penjualan anda</p>
+            <p class="mt-4 text-[11px] text-slate-500 italic font-medium">Keuntungan bersih dari penjualan periode ini</p>
         </div>
 
         {{-- Card Pengeluaran --}}
@@ -63,24 +85,24 @@
 
     {{-- Section 2: Pipeline & Stock --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        
-        {{-- Pipeline Flow (Large Card) --}}
+        {{-- Pipeline Flow (Diubah Menjadi 6 Jalur Tahapan Sukses) --}}
         <div class="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-sm border border-slate-50">
             <div class="flex justify-between items-center mb-10">
-                <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest italic">Pesanan</h3>
+                <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest italic">Pesanan dalam Alur</h3>
                 <div class="flex gap-2">
                     <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pantau pesanan</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pantau logistik</span>
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 @php
                     $pipelineSteps = [
                         ['label' => 'Menunggu Bahan', 'count' => $pipeline['waiting_mats'], 'icon' => 'fa-box', 'color' => 'slate'],
                         ['label' => 'Siap Produksi', 'count' => $pipeline['ready_prod'], 'icon' => 'fa-clipboard-check', 'color' => 'indigo'],
                         ['label' => 'Sedang Produksi', 'count' => $pipeline['in_production'], 'icon' => 'fa-gears', 'color' => 'blue'],
-                        ['label' => 'Kirim', 'count' => $pipeline['shipping'], 'icon' => 'fa-truck-fast', 'color' => 'amber'],
+                        ['label' => 'Perlu Dikirim', 'count' => $pipeline['ready_ship'], 'icon' => 'fa-boxes-packing', 'color' => 'rose'], // FIX REQ 1
+                        ['label' => 'Sedang Dikirim', 'count' => $pipeline['shipping'], 'icon' => 'fa-truck-fast', 'color' => 'amber'],    // FIX REQ 1
                         ['label' => 'Selesai', 'count' => $pipeline['done'], 'icon' => 'fa-circle-check', 'color' => 'emerald'],
                     ];
                 @endphp
@@ -91,14 +113,14 @@
                     </div>
                     <div class="bg-{{ $step['color'] }}-50/50 p-4 rounded-2xl border border-{{ $step['color'] }}-100 text-center transition-all group-hover:bg-{{ $step['color'] }}-50">
                         <i class="fa-solid {{ $step['icon'] }} text-{{ $step['color'] }}-400 mb-2"></i>
-                        <p class="text-[9px] font-black text-{{ $step['color'] }}-500 uppercase tracking-widest">{{ $step['label'] }}</p>
+                        <p class="text-[9px] font-black text-{{ $step['color'] }}-500 uppercase tracking-widest leading-tight h-6 flex items-center justify-center">{{ $step['label'] }}</p>
                     </div>
                 </div>
                 @endforeach
             </div>
         </div>
 
-        {{-- Stock Alerts (Smaller Side Card) --}}
+        {{-- Stock Alerts --}}
         <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-50 flex flex-col justify-center gap-8">
             <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Stok Bahan Baku</p>
@@ -124,7 +146,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {{-- Monitoring Produksi --}}
         <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-50">
-            <h3 class="text-sm font-black text-slate-800 uppercase italic mb-6">Monitoring Produksi Berjalan</h3>
+            {{-- FIX REQ 3: Menambahkan Badge Informasi Jumlah yang Sedang Diproduksi --}}
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-sm font-black text-slate-800 uppercase italic">Monitoring Produksi Terpilih</h3>
+                <span class="text-[10px] font-black bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase tracking-wider">
+                    {{ $pipeline['in_production'] }} Order Sedang Diproduksi
+                </span>
+            </div>
             <div class="space-y-4">
                 @foreach($activeProduction as $prod)
                 <div class="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-3xl transition-colors group">
@@ -145,16 +173,43 @@
 
         {{-- Monitoring Pengiriman --}}
         <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-50">
-            <h3 class="text-sm font-black text-slate-800 uppercase italic mb-6">Paket Sedang Dikirim</h3>
+            {{-- FIX REQ 2: Memberikan Keterangan Rinci Jumlah Paket Perlu Dikirim & Sedang Dikirim --}}
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                <h3 class="text-sm font-black text-slate-800 uppercase italic">Paket Dikirim Periode Ini</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-black bg-rose-50 text-rose-600 px-2.5 py-1 rounded-lg uppercase tracking-tight">
+                        Perlu Kirim: {{ $pipeline['ready_ship'] }}
+                    </span>
+                    <span class="text-[9px] font-black bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg uppercase tracking-tight">
+                        Dalam Perjalanan: {{ $pipeline['shipping'] }}
+                    </span>
+                </div>
+            </div>
+            
             <div class="space-y-4">
                 @foreach($activeShipping as $ship)
                 <div class="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-3xl transition-colors group border border-dashed border-transparent hover:border-slate-200">
-                    <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
-                        <i class="fa-solid fa-truck-fast text-xl"></i>
-                    </div>
+                    {{-- Dinamisasi Icon berdasarkan status internal --}}
+                    @if($ship->status_order == 'perlu dikirim')
+                        <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
+                            <i class="fa-solid fa-boxes-packing text-xl"></i>
+                        </div>
+                    @else
+                        <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                            <i class="fa-solid fa-truck-fast text-xl"></i>
+                        </div>
+                    @endif
+                    
                     <div class="flex-1">
-                        <p class="text-sm font-black text-slate-700 uppercase tracking-tight">{{ $ship->nama_pelanggan }}</p>
-                        <p class="text-[11px] text-slate-400 tracking-tighter">{{ $ship->shipping->kurir ?? 'Ekspedisi' }} • {{ $ship->shipping->nomor_resi ?? '-' }}</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-black text-slate-700 uppercase tracking-tight">{{ $ship->nama_pelanggan }}</p>
+                            <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded {{ $ship->status_order == 'perlu dikirim' ? 'bg-rose-50 text-rose-600' : 'bg-sky-50 text-sky-600' }}">
+                                {{ $ship->status_order }}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 tracking-tighter mt-0.5">
+                            {{ $ship->shipping->kurir ?? 'Menunggu Kurir' }} • {{ $ship->shipping->nomor_resi ?? 'Resi Belum Rilis' }}
+                        </p>
                     </div>
                     <a href="{{ route('orders.show', $ship->id_order) }}" class="text-slate-300 hover:text-blue-500 transition-colors">
                         <i class="fa-solid fa-arrow-right-long text-lg"></i>

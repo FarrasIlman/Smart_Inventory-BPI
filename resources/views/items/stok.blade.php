@@ -22,7 +22,7 @@
                 
                 <div class="relative w-full sm:w-44">
                     <select name="status" onchange="this.form.submit()" 
-                        class="w-full bg-white border border-slate-200 pl-4 pr-10 py-2.5 rounded-xl text-sm outline-none appearance-none font-semibold text-slate-600 cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all">
+                        class="w-full bg-white border border-slate-200 pl-4 pr-10 py-2.5 rounded-xl text-sm outline-none appearance-none font-semibold text-slate-600 pointer focus:ring-2 focus:ring-blue-500 transition-all">
                         <option value="">Semua Status</option>
                         <option value="aman" {{ request('status') == 'aman' ? 'selected' : '' }}>🟢 Aman</option>
                         <option value="kurang" {{ request('status') == 'kurang' ? 'selected' : '' }}>🔴 Kurang</option>
@@ -60,7 +60,7 @@
                     <th class="px-8 py-5 text-center">Stok Tersedia</th>
                     <th class="px-8 py-5">Satuan</th>
                     <th class="px-8 py-5 text-center">Status</th>
-                    <th class="px-8 py-5 text-center">Aksi</th>
+                    <th class="px-8 py-5 text-center w-40">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
@@ -80,7 +80,7 @@
                     {{-- Nama --}}
                     <td class="px-8 py-5 font-bold text-slate-700 text-base">{{ $item->nama_bahanbaku }}</td>
 
-                    {{-- Stok Tersedia (Modern Style) --}}
+                    {{-- Stok Tersedia --}}
                     <td class="px-8 py-5 text-center align-middle">
                         @php
                             $available = $item->stok - $item->stok_terkunci;
@@ -125,17 +125,38 @@
                     </td>
 
                     {{-- Aksi --}}
-                    <td class="px-8 py-5 text-right space-x-1">
+                    <td class="px-8 py-5">
                     @if(auth()->user()->role != 'manajerial')
-                        {{-- Tombol Aksi --}}
-                        <button @click="restockModal = true" class="text-emerald-600 font-bold py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all text-xs">Restock</button>
-                        
-                        <button @click="editModal = true" class="text-blue-600 font-bold py-2 px-3 rounded-lg hover:bg-blue-50 transition-all text-xs">Edit</button>
-                        
-                        <form action="{{ route('items.destroy', $item->id_bahanbaku) }}" method="POST" class="inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" onclick="return confirm('Hapus {{ $item->nama_bahanbaku }}?')" class="text-red-400 font-bold py-2 px-3 rounded-lg hover:bg-red-50 transition-all text-xs">Hapus</button>
-                        </form>
+                        {{-- FIX REQ: Desain Baru Tombol Icon Box Kontainer Berwarna --}}
+                        <div class="flex items-center justify-center gap-1.5">
+                            
+                            {{-- Tombol Restock (+) Hijau --}}
+                            <button @click="restockModal = true" title="Restock Bahan"
+                                class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100/30">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                            
+                            {{-- Tombol Edit (Pensil) Biru --}}
+                            <button @click="editModal = true" title="Edit Informasi"
+                                class="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-blue-100/30">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </button>
+                            
+                            {{-- Tombol Hapus (Trash) Merah --}}
+                            <form action="{{ route('items.destroy', $item->id_bahanbaku) }}" method="POST" class="inline">
+                                @csrf @method('DELETE')
+                                <button type="submit" onclick="return confirm('Hapus {{ $item->nama_bahanbaku }}?')" title="Hapus Permanen"
+                                    class="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
 
                         {{-- MODAL RESTOCK --}}
                         <div x-show="restockModal" 
@@ -205,7 +226,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- INPUT HARGA (BARU) --}}
+                                    {{-- INPUT HARGA --}}
                                     <div>
                                         <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1 tracking-widest">Harga Satuan (Rata-rata)</label>
                                         <div class="relative">
@@ -244,13 +265,12 @@
                                 </form>
                             </div>
                         </div>
-                        </div>
                     @else
                         <div class="flex justify-end">
                             <span class="px-3 py-1 bg-slate-100 text-slate-400 italic text-[10px] font-bold uppercase rounded-lg tracking-widest border border-slate-200">Read Only</span>
                         </div>
                     @endif
-                </td>
+                    </td>
                 </tr>
                 @empty
                 <tr>

@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('page_title', 'Master BOM')
 @section('content')
-<div class="space-y-8" x-data="{ showAddModal: false, showEditModal: false, currentBom: {}, selectedProductId: null }">
+<div class="space-y-8" x-data记录="{ showAddModal: false, showEditModal: false, currentBom: {}, selectedProductId: null }">
     
     <div>
         <h1 class="text-2xl font-black text-slate-800">Bill of Materials (BOM)</h1>
@@ -15,10 +15,14 @@
                 <h3 class="font-black text-slate-700 uppercase text-sm italic">
                     {{ $p->nama_produk }} (ID Produk: #{{ $p->id_product }})
                 </h3>
+                
+                {{-- PROTEKSI 1: Tombol Tambah Bahan Baku Rekomendasi Resep hanya untuk Admin --}}
+                @if(strtolower(auth()->user()->role ?? '') == 'admin')
                 <button @click="selectedProductId = {{ $p->id_product }}; showAddModal = true" 
                     class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all">
                     + Tambah Bahan Baku
                 </button>
+                @endif
             </div>
             
             <table class="w-full text-left text-sm">
@@ -28,7 +32,11 @@
                         <th class="px-6 py-4 text-center">Jumlah Kebutuhan</th>
                         <th class="px-6 py-4 text-center">Waste (%)</th>
                         <th class="px-6 py-4 text-center">Total (Incl. Waste)</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
+                        
+                        {{-- PROTEKSI 2: Menyembunyikan Kolom Header Aksi jika Bukan Admin --}}
+                        @if(strtolower(auth()->user()->role ?? '') == 'admin')
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -37,7 +45,6 @@
                         <td class="px-6 py-4">
                             <p class="font-bold text-slate-700 uppercase">{{ $b->rawMaterial->nama_bahanbaku ?? 'N/A' }}</p>
                         </td>
-                        {{-- Data Angka Di-Center dan Satuan di sebelah angka --}}
                         <td class="px-6 py-4 text-center font-medium text-slate-600">
                             {{ $b->jumlah_kebutuhan }} <span class="text-[10px] text-slate-400 font-normal ml-1">{{ $b->rawMaterial->satuan ?? '' }}</span>
                         </td>
@@ -48,6 +55,9 @@
                             {{ number_format($b->jumlah_kebutuhan * (1 + $b->persentase_waste/100), 2) }} 
                             <span class="text-[10px] text-slate-400 font-normal ml-1">{{ $b->rawMaterial->satuan ?? '' }}</span>
                         </td>
+                        
+                        {{-- PROTEKSI 3: Tombol Aksi Edit & Delete di Dalam Baris Hanya Muncul untuk Admin --}}
+                        @if(strtolower(auth()->user()->role ?? '') == 'admin')
                         <td class="px-6 py-4">
                             <div class="flex justify-center gap-2">
                                 <button @click="currentBom = {{ json_encode($b) }}; showEditModal = true" 
@@ -62,10 +72,14 @@
                                 </form>
                             </div>
                         </td>
+                        @endif
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic text-xs">Belum ada bahan baku.</td>
+                        {{-- PROTEKSI 4: Colspan Dinamis. Jika Admin = 5 Kolom, Jika Selain Admin = 4 Kolom (Biar Simetris) --}}
+                        <td colspan="{{ strtolower(auth()->user()->role ?? '') == 'admin' ? 5 : 4 }}" class="px-6 py-10 text-center text-slate-400 italic text-xs">
+                            Belum ada bahan baku.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -74,81 +88,81 @@
         @endforeach
     </div>
 
-    {{-- MODAL TAMBAH --}}
-    <div x-show="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showAddModal = false"></div>
-        
-        <form action="{{ route('bom.store') }}" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
-            @csrf
+    {{-- PROTEKSI 5: Sruktur Elemen Modal Tambah & Edit Hanya Dimuat Jika User Adalah Admin --}}
+    @if(strtolower(auth()->user()->role ?? '') == 'admin')
+        {{-- MODAL TAMBAH --}}
+        <div x-show="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showAddModal = false"></div>
             
-            {{-- POIN KRUSIAL: Pastikan id_product terisi otomatis dari Alpine.js --}}
-            <input type="hidden" name="id_product" :value="selectedProductId">
+            <form action="{{ route('bom.store') }}" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
+                @csrf
+                <input type="hidden" name="id_product" :value="selectedProductId">
 
-            <div class="p-6 border-b border-slate-100 bg-slate-50">
-                <h3 class="text-lg font-bold text-slate-800 uppercase italic">Tambah Bahan Baku</h3>
-            </div>
-
-            <div class="p-8 space-y-4">
-                {{-- Pilih Bahan --}}
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Pilih Bahan</label>
-                    <select name="id_bahanbaku" required class="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                        <option value="">Pilih...</option>
-                        @foreach($materials as $mat)
-                            <option value="{{ $mat->id_bahanbaku }}">{{ $mat->nama_bahanbaku }} ({{ $mat->satuan }})</option>
-                        @endforeach
-                    </select>
+                <div class="p-6 border-b border-slate-100 bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800 uppercase italic">Tambah Bahan Baku</h3>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="p-8 space-y-4">
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Qty Kebutuhan</label>
-                        <input type="number" step="0.01" name="jumlah_kebutuhan" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Pilih Bahan</label>
+                        <select name="id_bahanbaku" required class="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Pilih...</option>
+                            @foreach($materials as $mat)
+                                <option value="{{ $mat->id_bahanbaku }}">{{ $mat->nama_bahanbaku }} ({{ $mat->satuan }})</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Waste (%)</label>
-                        <input type="number" step="0.01" name="persentase_waste" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
 
-            <div class="p-6 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
-                <button type="button" @click="showAddModal = false" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-red-500">Batal</button>
-                <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-100">
-                    Simpan Bahan
-                </button>
-            </div>
-        </form>
-    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Qty Kebutuhan</label>
+                            <input type="number" step="0.01" name="jumlah_kebutuhan" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Waste (%)</label>
+                            <input type="number" step="0.01" name="persentase_waste" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
 
-    {{-- MODAL EDIT --}}
-    <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showEditModal = false"></div>
-        <form :action="`/bom/${currentBom.id_bom}`" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
-            @csrf @method('PUT')
-            <div class="p-6 border-b border-slate-100 bg-slate-50"><h3 class="text-lg font-bold text-slate-800 uppercase italic">Edit Kebutuhan</h3></div>
-            <div class="p-8 space-y-4">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Bahan</label>
-                    <input type="text" :value="currentBom.rawMaterial?.nama_bahanbaku" disabled class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm text-slate-500 font-bold uppercase">
+                <div class="p-6 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
+                    <button type="button" @click="showAddModal = false" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-red-500">Batal</button>
+                    <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-100">
+                        Simpan Bahan
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+            </form>
+        </div>
+
+        {{-- MODAL EDIT --}}
+        <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showEditModal = false"></div>
+            <form :action="`/bom/${currentBom.id_bom}`" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
+                @csrf @method('PUT')
+                <div class="p-6 border-b border-slate-100 bg-slate-50"><h3 class="text-lg font-bold text-slate-800 uppercase italic">Edit Kebutuhan</h3></div>
+                <div class="p-8 space-y-4">
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Qty Kebutuhan</label>
-                        <input type="number" step="0.01" name="jumlah_kebutuhan" x-model="currentBom.jumlah_kebutuhan" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Bahan</label>
+                        <input type="text" :value="currentBom.raw_material?.nama_bahanbaku" disabled class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm text-slate-500 font-bold uppercase">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Waste (%)</label>
-                        <input type="number" step="0.01" name="persentase_waste" x-model="currentBom.persentase_waste" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Qty Kebutuhan</label>
+                            <input type="number" step="0.01" name="jumlah_kebutuhan" x-model="currentBom.jumlah_kebutuhan" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Waste (%)</label>
+                            <input type="number" step="0.01" name="persentase_waste" x-model="currentBom.persentase_waste" required class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="p-6 bg-slate-50 flex justify-end gap-3">
-                <button type="button" @click="showEditModal = false" class="text-xs font-bold text-slate-400 uppercase">Batal</button>
-                <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-xs font-black uppercase hover:bg-slate-900 transition-all">Simpan Perubahan</button>
-            </div>
-        </form>
-    </div>
+                <div class="p-6 bg-slate-50 flex justify-end gap-3">
+                    <button type="button" @click="showEditModal = false" class="text-xs font-bold text-slate-400 uppercase">Batal</button>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-xs font-black uppercase hover:bg-slate-900 transition-all">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    @endif
 
 </div>
 @endsection

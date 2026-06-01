@@ -29,13 +29,18 @@
                 <option value="menunggu bahan" {{ request('status') == 'menunggu bahan' ? 'selected' : '' }}>Menunggu Bahan</option>
                 <option value="siap produksi" {{ request('status') == 'siap produksi' ? 'selected' : '' }}>Siap Produksi</option>
                 <option value="produksi" {{ request('status') == 'produksi' ? 'selected' : '' }}>Dalam Produksi</option>
+                <option value="perlu dikirim" {{ request('status') == 'perlu dikirim' ? 'selected' : '' }}>Perlu Dikirim</option>
+                <option value="dikirim" {{ request('status') == 'dikirim' ? 'selected' : '' }}>Dalam Pengiriman</option>
                 <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Pesanan Selesai</option>
             </select>
 
-            <a href="{{ route('orders.create') }}" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200 flex items-center justify-center shrink-0 transition-all">
-                + Tambah Pesanan
-            </a>
+            {{-- PROTEKSI: Tombol Tambah Pesanan Hanya untuk Admin dan Customer Handle --}}
+            @if(in_array(strtolower(auth()->user()->role ?? ''), ['admin', 'customer handle']))
+                <a href="{{ route('orders.create') }}" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200 flex items-center justify-center shrink-0 transition-all">
+                    + Tambah Pesanan
+                </a>
+            @endif
         </form>
     </div>
 
@@ -62,7 +67,6 @@
                     @forelse($orders as $order)
                     <tr class="hover:bg-slate-50/50 transition-all group">
                         
-                        <!-- Pelanggan -->
                         <td class="px-6 py-6 align-middle">
                             <div class="flex items-center justify-start gap-3 min-h-[56px] pl-4">
                                 <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold border border-blue-100 uppercase text-xs shrink-0">
@@ -79,7 +83,6 @@
                             </div>
                         </td>
 
-                        <!-- Size -->
                         <td class="px-6 py-6 align-middle">
                             <div class="flex flex-wrap gap-1.5 justify-center max-w-[160px] mx-auto min-h-[56px] items-center">
                                 @forelse($order->details as $detail)
@@ -99,7 +102,6 @@
                             </div>
                         </td>
 
-                        <!-- Qty -->
                         <td class="px-6 py-6 text-center align-middle">
                             <div class="flex flex-col justify-center items-center min-h-[56px]">
                                 <p class="text-lg font-black text-slate-800 leading-none">
@@ -111,7 +113,6 @@
                             </div>
                         </td>
 
-                        <!-- Timeline -->
                         <td class="px-6 py-6 text-center align-middle">
                             <div class="flex flex-col items-center justify-center space-y-1 min-h-[56px]">
                                 <span class="text-[9px] font-bold text-slate-400 uppercase">
@@ -124,20 +125,20 @@
                             </div>
                         </td>
 
-                        <!-- Status -->
                         <td class="px-6 py-6 text-center align-middle">
                             <div class="flex items-center justify-center min-h-[56px]">
                                 <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-block 
                                     {{ $order->status_order == 'menunggu bahan' ? 'bg-amber-50 text-amber-600 border border-amber-100' : '' }}
                                     {{ $order->status_order == 'siap produksi' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' }}
                                     {{ $order->status_order == 'produksi' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : '' }}
+                                    {{ $order->status_order == 'perlu dikirim' ? 'bg-rose-50 text-rose-600 border border-rose-100' : '' }}
+                                    {{ $order->status_order == 'dikirim' ? 'bg-sky-50 text-sky-600 border border-sky-100' : '' }}
                                     {{ $order->status_order == 'selesai' ? 'bg-green-50 text-green-600 border border-green-100' : '' }}">
                                     {{ $order->status_order }}
                                 </span>
                             </div>
                         </td>
 
-                        <!-- Aksi -->
                         <td class="px-6 py-6 text-center align-middle">
                             <div class="flex flex-col gap-2 max-w-[140px] mx-auto min-h-[72px] justify-center">
                                 <a href="{{ route('orders.show', $order->id_order) }}" 
@@ -145,10 +146,13 @@
                                     Lihat Detail
                                 </a>
                                 
-                                <a href="{{ route('orders.check', $order->id_order) }}" 
-                                    class="flex items-center justify-center w-full bg-slate-800 hover:bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-bold transition-all shadow-md">
-                                    Hitung Keperluan
-                                </a>
+                                {{-- FIX REQ: Tombol Hitung Keperluan Sekarang Terproteksi Eksklusif Hanya untuk Admin --}}
+                                @if(strtolower(auth()->user()->role ?? '') == 'admin')
+                                    <a href="{{ route('orders.check', $order->id_order) }}" 
+                                        class="flex items-center justify-center w-full bg-slate-800 hover:bg-blue-600 text-white px-3 py-2 rounded-xl text-[10px] font-bold transition-all shadow-md">
+                                        Hitung Keperluan
+                                    </a>
+                                @endif
                             </div>
                         </td>
 

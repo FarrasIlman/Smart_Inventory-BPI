@@ -92,6 +92,8 @@
                                             <option value="manajerial" {{ $user->role == 'manajerial' ? 'selected' : '' }}>Manajerial</option>
                                             <option value="gudang" {{ $user->role == 'gudang' ?
                                             'selected' : '' }}>Gudang</option>
+                                            <option value="customer handle" {{ $user->role == 'customer handle' ?
+                                            'selected' : '' }}>Customer Handle</option>
                                         </select>
                                     </div>
                                     <div class="pt-6 flex justify-end space-x-3">
@@ -134,8 +136,9 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Role / Hak Akses</label>
                     <select name="role" class="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                        <option value="manajerial">Manajerial</option>
                         <option value="admin">Admin</option>
+                        <option value="manajerial">Manajerial</option>
+                        <option value="customer handle">Customer Handle</option>
                         <option value="produksi">Produksi</option>
                         <option value="gudang">Gudang</option>
                     </select>

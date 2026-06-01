@@ -58,11 +58,13 @@ Route::get('/orders/{id}/check-materials', [OrderController::class, 'showCalcula
 
 
 // Production Controller
+use App\Http\Controllers\ProductionController;
 Route::get('/production', [OrderController::class, 'productionIndex'])->name('production.index');
 Route::post('/production/{id}/update-stage', [OrderController::class, 'updateStage'])->name('production.updateStage');
 Route::post('/production/{id}/materials', [ProductionController::class, 'updateMaterialUsage'])
     ->name('production.materials.update');
-
+Route::get('/production/cutting-form/{id}', [ProductionController::class, 'cuttingForm'])->name('production.cuttingForm');
+Route::put('/production/cutting-form/{id}/update', [ProductionController::class, 'updateCuttingForm'])->name('production.updateCuttingForm');
 
 // Product Controller
 use App\Http\Controllers\ProductController;

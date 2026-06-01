@@ -21,7 +21,6 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-6">
 
-            <!-- INFORMASI PRODUKSI -->
             <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 p-8">
                 <h3 class="text-slate-800 font-bold text-lg mb-6 flex items-center">
                     <span class="w-2 h-6 bg-blue-600 rounded-full mr-3"></span>
@@ -83,7 +82,6 @@
                 </div>
             </div>
 
-            <!-- DISTRIBUSI SIZE -->
             <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 p-8">
                 <h3 class="text-slate-800 font-bold text-lg mb-6">Distribusi Ukuran</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
@@ -98,7 +96,6 @@
 
         </div>
 
-        <!-- SIDE RIGHT -->
         <div class="space-y-6" x-data="{ openDelete: false }">
 
             <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 p-8">
@@ -172,7 +169,7 @@
                             <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center mx-auto mb-2 shadow-lg shadow-emerald-100">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </div>
-                            <h4 class="text-emerald-800 font-black uppercase text-[10px] tracking-widest">Produksi Selesai</h4>
+                            <h4 class="text-emerald-800 font-black uppercase text-[10px] tracking-widest">Pesanan Selesai</h4>
                         </div>
 
                         <div class="space-y-2">
@@ -201,36 +198,59 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('production.index') }}" class="block w-full py-3.5 bg-slate-900 text-white rounded-xl text-center font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all">
-                            Kembali ke Monitoring
+                        <a href="{{ route('orders.index') }}" class="block w-full py-3.5 bg-slate-900 text-white rounded-xl text-center font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all">
+                            Kembali ke Pesanan
                         </a>
                     </div>
 
                 @else
                     {{-- --- MODE BELUM SELESAI (TAMPILKAN TOMBOL AKSI) --- --}}
                     @if(in_array($order->status_order, ['menunggu bahan', 'siap produksi', 'produksi']))
+                    @php
+                        $role = strtolower(auth()->user()->role ?? '');
+                        $isAdmin = ($role == 'admin');
+                        $canEditDelete = in_array($role, ['admin', 'customer handle']);
+                        $canProduction = in_array($role, ['admin', 'produksi']);
+                    @endphp
+
                     <div class="space-y-3">
-                        <a href="{{ route('orders.check', $order->id_order) }}" 
-                            class="flex items-center justify-center w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-slate-100 hover:bg-blue-600 transition-all">
-                            Hitung Kebutuhan Bahan
-                        </a>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <a href="{{ route('orders.edit', $order->id_order) }}"
-                                class="flex items-center justify-center bg-blue-50 text-blue-600 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest border border-blue-100 hover:bg-blue-600 hover:text-white transition-all">
-                                Edit
+                        {{-- 1. Akses Tombol Hitung Kebutuhan Bahan: Hanya untuk Admin murni --}}
+                        @if($isAdmin)
+                            <a href="{{ route('orders.check', $order->id_order) }}" 
+                                class="flex items-center justify-center w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-slate-100 hover:bg-blue-600 transition-all">
+                                Hitung Kebutuhan Bahan
                             </a>
+                        @endif
 
-                            <button @click="openDelete = true"
-                                class="flex items-center justify-center bg-red-50 text-red-600 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest border border-red-100 hover:bg-red-500 hover:text-white transition-all">
-                                Hapus
-                            </button>
-                        </div>
+                        {{-- BARU: Akses Tombol Lihat Form Potong - Terbuka untuk Admin & Produksi jika status bukan 'menunggu bahan' --}}
+                        @if($canProduction && $order->status_order != 'menunggu bahan')
+                            <a href="{{ route('production.cuttingForm', $order->id_order) }}" 
+                                class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-blue-100 transition-all flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Lihat Form Potong
+                            </a>
+                        @endif
+
+                        {{-- 2. Akses Tombol Edit & Hapus: Terbuka untuk Admin & Customer Handle --}}
+                        @if($canEditDelete)
+                            <div class="grid grid-cols-2 gap-3">
+                                <a href="{{ route('orders.edit', $order->id_order) }}"
+                                    class="flex items-center justify-center bg-blue-50 text-blue-600 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest border border-blue-100 hover:bg-blue-600 hover:text-white transition-all">
+                                    Edit
+                                </a>
+
+                                <button @click="openDelete = true"
+                                    class="flex items-center justify-center bg-red-50 text-red-600 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest border border-red-100 hover:bg-red-500 hover:text-white transition-all">
+                                    Hapus
+                                </button>
+                            </div>
+                        @endif
                     </div>
                     @endif
                 @endif
             </div>
 
+            {{-- MODAL HAPUS PESANAN --}}
             <div x-show="openDelete" 
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0"
@@ -265,8 +285,9 @@
                 </div>
             </div>
         </div>
+    </div>
 </div>
-<!-- Modal Shipping -->
+
 <div id="modalShipping" class="fixed inset-0 z-[100] hidden overflow-y-auto">
     <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" onclick="document.getElementById('modalShipping').classList.add('hidden')"></div>
 
@@ -325,8 +346,7 @@
     </div>
 </div>
 
-<!-- Modal Detail Shipping -->
- <div id="modalDetailShipping" class="fixed inset-0 z-[100] hidden overflow-y-auto">
+<div id="modalDetailShipping" class="fixed inset-0 z-[100] hidden overflow-y-auto">
     <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" onclick="document.getElementById('modalDetailShipping').classList.add('hidden')"></div>
 
     <div class="flex min-h-full items-center justify-center p-4">
@@ -385,7 +405,7 @@
                             <span>KONFIRMASI BARANG DITERIMA</span>
                         </button>
                     </form>
-                    <p class="text-center text-[10px] text-slate-400 mt-4 italic font-medium italic">Klik konfirmasi hanya jika pesanan telah selesai sepenuhnya.</p>
+                    <p class="text-center text-[10px] text-slate-400 mt-4 italic font-medium">Klik konfirmasi hanya jika pesanan telah selesai sepenuhnya.</p>
                 </div>
             </div>
         </div>

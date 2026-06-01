@@ -7,7 +7,7 @@
             {{ session('success') }}
         </div>
     @endif
-    <!-- HEADER -->
+    
     <div class="flex justify-between items-center">
         <div>
             <div class="flex items-center gap-3">
@@ -15,7 +15,6 @@
                     Detail Pembelian
                 </h1>
 
-                <!-- ID -->
                 <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-500 text-sm font-bold">
                     #{{ $purchase->id_purchase }}
                 </span>
@@ -32,9 +31,7 @@
         </a>
     </div>
 
-    <!-- INFO -->
     <div class="bg-white rounded-[32px] border border-slate-100 p-8 grid grid-cols-4 gap-6">
-    <!-- Supplier -->
         <div>
             <p class="text-xs text-slate-400 font-bold">Supplier</p>
             <p class="font-bold text-slate-800">
@@ -42,7 +39,6 @@
             </p>
         </div>
 
-        <!-- Tanggal -->
         <div>
             <p class="text-xs text-slate-400 font-bold">Tanggal</p>
             <p class="font-bold text-slate-800">
@@ -50,7 +46,6 @@
             </p>
         </div>
 
-        <!-- Status -->
         <div>
             <p class="text-xs text-slate-400 font-bold">Status</p>
 
@@ -62,36 +57,56 @@
             </span>
         </div>
 
-        <!-- Aksi -->
         <div>
             <p class="text-xs text-slate-400 font-bold">Aksi</p>
 
             <div class="mt-1 flex items-center gap-3 text-sm font-semibold">
-                
-                <a href="{{ route('purchases.edit', $purchase->id_purchase) }}"
-                class="text-blue-600 hover:text-slate-600 transition">
-                    Edit
-                </a>
+                @php
+                    $role = strtolower(auth()->user()->role ?? '');
+                    $canEdit = in_array($role, ['admin', 'gudang']);
+                    $canDelete = ($role == 'admin');
+                @endphp
 
-                <span class="text-slate-300">|</span>
+                {{-- Tombol Edit: Kebuka untuk Admin & Gudang --}}
+                @if($canEdit)
+                    <a href="{{ route('purchases.edit', $purchase->id_purchase) }}"
+                    class="text-blue-600 hover:text-slate-600 transition">
+                        Edit
+                    </a>
+                @endif
 
-                <button type="button"
-                    onclick="confirmDelete()"
-                    class="text-red-500 hover:text-red-600 transition">
-                    Hapus
-                </button>
+                {{-- Garis Pembatas: Hanya muncul jika user punya kedua akses (Admin) --}}
+                @if($canEdit && $canDelete)
+                    <span class="text-slate-300">|</span>
+                @endif
+
+                {{-- Tombol Hapus: Hanya untuk Admin --}}
+                @if($canDelete)
+                    <button type="button"
+                        onclick="confirmDelete()"
+                        class="text-red-500 hover:text-red-600 transition">
+                        Hapus
+                    </button>
+                @endif
+
+                {{-- Kondisi jika diakses role lain (Misal Produksi / Customer Handle) --}}
+                @if(!$canEdit && !$canDelete)
+                    <span class="text-slate-400 italic text-xs font-normal">Akses terkunci</span>
+                @endif
             </div>
 
-            <form id="deleteForm"
-                action="{{ route('purchases.destroy', $purchase->id_purchase) }}"
-                method="POST" class="hidden">
-                @csrf
-                @method('DELETE')
-            </form>
+            {{-- Form Delete dikunci di dalam if agar tidak bisa di-inject via inspect element --}}
+            @if($canDelete)
+                <form id="deleteForm"
+                    action="{{ route('purchases.destroy', $purchase->id_purchase) }}"
+                    method="POST" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endif
         </div>
     </div>
 
-    <!-- TABLE -->
     <div class="bg-white rounded-[32px] border border-slate-100 p-8">
 
         <h3 class="font-bold text-slate-800 mb-6">Daftar Bahan</h3>
@@ -140,7 +155,6 @@
             </tbody>
         </table>
 
-        <!-- TOTAL -->
         <div class="flex justify-end mt-6">
             <div class="text-right">
                 <p class="text-xs text-slate-400">Total</p>

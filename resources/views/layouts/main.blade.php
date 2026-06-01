@@ -33,36 +33,42 @@
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     <span class="text-sm font-semibold">Dashboard</span>
                 </a>
-
+                @if(in_array(auth()->user()->role, ['admin', 'customer handle', 'manajerial']))
                 <a href="{{ route('orders.index') }}" class="sidebar-item flex items-center p-3 rounded-xl transition {{ Request::is('orders*') ? 'active-menu' : '' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
                     <span class="text-sm font-semibold">Pesanan</span>
                 </a>
+                @endif
 
+                @if(in_array(auth()->user()->role, ['admin', 'customer handle', 'manajerial', 'produksi']))
                 <a href="{{ route('production.index') }}" 
                 class="sidebar-item flex items-center p-3 rounded-xl transition {{ Request::is('production*') ? 'active-menu' : '' }}">
                     
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {{-- Ikon Box/Produksi agar beda dengan Pesanan --}}
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                     </svg>
                     
                     <span class="text-sm font-semibold">Produksi</span>
                 </a>
+                @endif
 
+                @if(in_array(auth()->user()->role, ['admin','manajerial','gudang']))
                 <a href="{{ route('items.index') }}" class="sidebar-item flex items-center p-3 rounded-xl transition {{ Request::is('stok-bahan*') ? 'active-menu' : '' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     <span class="text-sm font-semibold">Stok Bahan Baku</span>
                 </a>
+                @endif
 
+                @if(in_array(auth()->user()->role, ['admin','manajerial','gudang']))
                 <a href="{{ route('purchases.index') }}" class="sidebar-item flex items-center p-3 rounded-xl transition {{ Request::is('purchases*') || Request::is('pembelian*') ? 'active-menu' : '' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                     <span class="text-sm font-semibold">Pembelian</span>
                 </a>
+                @endif
 
                 <div x-data="{ open: false }">
                     <button @click="open = !open" class="sidebar-item w-full flex items-center justify-between p-3 rounded-xl focus:outline-none transition">
@@ -74,7 +80,7 @@
                     </button>
                     <div x-show="open" class="pl-12 mt-2 space-y-2">
                         <a href="{{ route('products.index') }}" class="block text-xs text-slate-500 hover:text-white transition">Data Produk</a>
-                        <a href="{{ route('bom.index') }}" class="block text-xs text-slate-500 hover:text-white transition">Data Bahan Baku</a>
+                        <a href="{{ route('bom.index') }}" class="block text-xs text-slate-500 hover:text-white transition">Data BOM Produk</a>
                         <a href="{{ route('suppliers.index') }}" class="block text-xs text-slate-500 hover:text-white transition">Data Supplier</a>
                     </div>
                 </div>

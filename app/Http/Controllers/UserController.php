@@ -23,7 +23,7 @@ class UserController extends Controller
             'nama_user' => 'required|string|max:255',
             'username'  => 'required|string|max:255|unique:users',
             'password'  => 'required|string|min:5',
-            'role'      => 'required|in:manajerial,admin,produksi,gudang'
+            'role'      => 'required|in:manajerial,admin,customer handle,produksi,gudang'
         ]);
 
         User::create([
@@ -43,7 +43,7 @@ class UserController extends Controller
         $request->validate([
             'nama_user' => 'required|string|max:255',
             'username'  => 'required|string|max:255|unique:users,username,' . $id . ',id_user',
-            'role'      => 'required|in:manajerial,admin,produksi,gudang',
+            'role'      => 'required|in:manajerial,admin,customer handle,produksi,gudang',
             'password'  => 'nullable|min:5'
         ]);
 

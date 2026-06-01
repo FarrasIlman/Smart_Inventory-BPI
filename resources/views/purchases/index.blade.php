@@ -5,29 +5,28 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- HEADER -->
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Pembelian</h1>
             <p class="text-slate-400 text-xs mt-1">Manajemen pembelian bahan baku.</p>
         </div>
-
+        
+        {{-- PROTEKSI: Tombol Tambah Pembelian hanya muncul dan bisa diakses oleh Admin --}}
+        @if(strtolower(auth()->user()->role ?? '') == 'admin')
         <a href="{{ route('purchases.create') }}" 
             class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-200 transition-all">
             + Tambah Pembelian
         </a>
+        @endif
     </div>
 
-    <!-- FILTER + SEARCH -->
     <div class="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center">
         <form method="GET" action="{{ route('purchases.index') }}" class="flex gap-3 w-full md:w-auto">
 
-            <!-- SEARCH ID -->
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Cari ID Pembelian..."
                 class="bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm w-full md:w-64">
 
-            <!-- FILTER STATUS -->
             <select name="status" onchange="this.form.submit()"
                 class="bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600">
                 
@@ -51,7 +50,6 @@
         </form>
     </div>
 
-    <!-- TABLE -->
     <div class="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
         <div class="p-8 border-b border-slate-50 bg-slate-50/30">
             <h3 class="text-slate-800 font-bold text-lg">Daftar Pembelian</h3>
@@ -75,28 +73,24 @@
                     @forelse($purchases as $p)
                     <tr class="hover:bg-slate-50/50 transition-all">
 
-                        <!-- ID -->
                         <td class="px-6 py-6 text-center">
                             <p class="font-black text-slate-700">
                                 #{{ $p->id_purchase }}
                             </p>
                         </td>
 
-                        <!-- Supplier -->
                         <td class="px-6 py-6 text-center">
                             <p class="font-bold text-slate-800 text-sm">
                                 {{ $p->supplier->nama_supplier ?? '-' }}
                             </p>
                         </td>
 
-                        <!-- Tanggal -->
                         <td class="px-6 py-6 text-center">
                             <p class="text-sm text-slate-600">
                                 {{ \Carbon\Carbon::parse($p->tanggal_pembelian)->format('d/m/Y') }}
                             </p>
                         </td>
 
-                        <!-- Status -->
                         <td class="px-6 py-6 text-center">
                             <span class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest
                                 {{ $p->status_pembelian == 'dipesan' ? 'bg-amber-50 text-amber-600 border border-amber-100' : '' }}
@@ -106,14 +100,12 @@
                             </span>
                         </td>
 
-                        <!-- Total Item -->
                         <td class="px-6 py-6 text-center">
                             <p class="font-bold text-slate-800">
                                 {{ $p->details->count() }} Item
                             </p>
                         </td>
 
-                        <!-- Aksi -->
                         <td class="px-6 py-6 text-center">
                             <a href="{{ route('purchases.show', $p->id_purchase) }}"
                                 class="bg-white border border-slate-200 hover:text-blue-600 px-4 py-2 rounded-xl text-xs font-bold shadow-sm">

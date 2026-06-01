@@ -12,15 +12,18 @@
         
         <div class="flex items-center gap-3">
             <form action="{{ route('products.index') }}" method="GET" class="relative group">
-                <input type="text" name="search" x-model="search" placeholder="Cari kode atau nama..." 
+                <input type="text" name="search" placeholder="Cari kode atau nama..." 
                     class="bg-white border border-slate-200 rounded-full pl-11 pr-4 py-3 text-xs focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none w-72 shadow-sm transition-all group-hover:border-slate-300">
                 <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3 transition-colors group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"/></svg>
             </form>
             
+            {{-- PROTEKSI 1: Tombol Tambah Produk hanya untuk Admin --}}
+            @if(strtolower(auth()->user()->role ?? '') == 'admin')
             <button @click="showAddModal = true" class="bg-blue-600 hover:bg-slate-950 text-white px-7 py-3.5 rounded-full text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-100 flex items-center gap-2 group">
                 <svg class="w-4 h-4 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 Tambah
             </button>
+            @endif
         </div>
     </div>
 
@@ -36,7 +39,7 @@
                 </span>
             </div>
 
-            {{-- Image Area: Kotak 1:1, Zoom Effect --}}
+            {{-- Image Area --}}
             <div class="aspect-square bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
                 @if($p->gambar_produk)
                     <img src="{{ asset('storage/' . $p->gambar_produk) }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -66,7 +69,8 @@
                         </div>
                     </div>
 
-                    {{-- Actions --}}
+                    {{-- PROTEKSI 2: Tombol Aksi Edit & Delete hanya muncul untuk Admin --}}
+                    @if(strtolower(auth()->user()->role ?? '') == 'admin')
                     <div class="flex gap-1">
                         <button @click="currentProduct = {{ $p }}; showEditModal = true" 
                             class="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm">
@@ -82,6 +86,7 @@
                             </button>
                         </form>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -96,128 +101,107 @@
         @endforelse
     </div>
 
-    {{-- MODAL TAMBAH --}}
-    <div x-show="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showAddModal = false"></div>
-        
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100">
-                <h3 class="text-xl font-bold text-slate-800">Tambah Produk Baru</h3>
-                <p class="text-slate-500 text-xs mt-1">Masukkan detail informasi produk secara lengkap.</p>
+    {{-- PROTEKSI 3: Dokumen Struktur Modal Tambah & Edit hanya di-render jika User adalah Admin --}}
+    @if(strtolower(auth()->user()->role ?? '') == 'admin')
+        {{-- MODAL TAMBAH --}}
+        <div x-show="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showAddModal = false"></div>
+            
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800">Tambah Produk Baru</h3>
+                    <p class="text-slate-500 text-xs mt-1">Masukkan detail informasi produk secara lengkap.</p>
+                </div>
+
+                <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
+                    @csrf
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700">Nama Produk</label>
+                        <input type="text" name="nama_produk" required class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Masukkan nama produk">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700">Kategori</label>
+                            <select name="id_categories" required class="w-full border border-slate-200 rounded-lg px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id_categories }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700">Harga Estimasi</label>
+                            <input type="number" name="estimasi_harga" class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Rp 0">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Deskripsi Produk</label>
+                        <textarea name="deskripsi" class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all" rows="3" placeholder="Jelaskan detail produk..."></textarea>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700">Foto Produk</label>
+                        <input type="file" name="gambar_produk" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50 mt-8">
+                        <button type="button" @click="showAddModal = false" class="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:text-red-600 transition-colors">Batal</button>
+                        <button type="submit" class="bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-600 transition-all">Simpan Produk</button>
+                    </div>
+                </form>
             </div>
-
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
-                @csrf
-                
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Nama Produk</label>
-                    <input type="text" name="nama_produk" required 
-                        class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                        placeholder="Masukkan nama produk">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700">Kategori</label>
-                        <select name="id_categories" required 
-                            class="w-full border border-slate-200 rounded-lg px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Pilih Kategori</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id_categories }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700">Harga Estimasi</label>
-                        <input type="number" name="estimasi_harga" 
-                            class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                            placeholder="Rp 0">
-                    </div>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Deskripsi Produk</label>
-                    <textarea name="deskripsi" 
-                        {{-- Gunakan x-model="currentProduct.deskripsi" khusus untuk Modal Edit --}}
-                        class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
-                        rows="3" placeholder="Jelaskan detail produk..."></textarea>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700">Foto Produk</label>
-                    <input type="file" name="gambar_produk" 
-                        class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50 mt-8">
-                    <button type="button" @click="showAddModal = false" 
-                        class="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:text-red-600 transition-colors">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                        class="bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-600 transition-all">
-                        Simpan Produk
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
-    
-    {{-- MODAL Edit --}}
-    <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showEditModal = false"></div>
         
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 text-center">
-                <h3 class="text-xl font-bold text-slate-800">Edit Data Produk</h3>
-                <p class="text-slate-500 text-xs mt-1">ID Produk: <span x-text="currentProduct.id_product" class="font-bold"></span></p>
+        {{-- MODAL EDIT --}}
+        <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showEditModal = false"></div>
+            
+            <div class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100 text-center">
+                    <h3 class="text-xl font-bold text-slate-800">Edit Data Produk</h3>
+                    <p class="text-slate-500 text-xs mt-1">ID Produk: <span x-text="currentProduct.id_product" class="font-bold"></span></p>
+                </div>
+
+                <form :action="`/products/${currentProduct.id_product}`" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Nama Produk</label>
+                        <input type="text" name="nama_produk" x-model="currentProduct.nama_produk" required class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Kategori</label>
+                            <select name="id_categories" x-model="currentProduct.id_categories" required class="w-full border border-slate-200 rounded-lg px-3 py-3 text-sm">
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id_categories }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Estimasi Harga</label>
+                            <input type="number" name="estimasi_harga" x-model="currentProduct.estimasi_harga" class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Ganti Foto (Opsional)</label>
+                        <input type="file" name="gambar_produk" class="w-full text-xs text-slate-500">
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50 mt-8">
+                        <button type="button" @click="showEditModal = false" class="px-5 py-2.5 text-sm font-semibold text-slate-400 hover:text-red-600 transition-colors">Batal</button>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-900 transition-all uppercase tracking-widest">Simpan Perubahan</button>
+                    </div>
+                </form>
             </div>
-
-            <form :action="`/products/${currentProduct.id_product}`" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
-                @csrf
-                @method('PUT')
-                
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Nama Produk</label>
-                    <input type="text" name="nama_produk" x-model="currentProduct.nama_produk" required 
-                        class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Kategori</label>
-                        <select name="id_categories" x-model="currentProduct.id_categories" required 
-                            class="w-full border border-slate-200 rounded-lg px-3 py-3 text-sm">
-                            <option value="">Pilih Kategori</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id_categories }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Estimasi Harga</label>
-                        <input type="number" name="estimasi_harga" x-model="currentProduct.estimasi_harga"
-                            class="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm outline-none">
-                    </div>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 uppercase tracking-widest">Ganti Foto (Opsional)</label>
-                    <input type="file" name="gambar_produk" class="w-full text-xs text-slate-500">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50 mt-8">
-                    <button type="button" @click="showEditModal = false" class="px-5 py-2.5 text-sm font-semibold text-slate-400 hover:text-red-600 transition-colors">
-                        Batal
-                    </button>
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-900 transition-all uppercase tracking-widest">
-                        Simpan Perubahan
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
-
+    @endif
 
 </div>
 @endsection
