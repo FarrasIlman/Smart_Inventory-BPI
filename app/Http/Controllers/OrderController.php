@@ -273,35 +273,36 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-            // 1. Logika firstOrCreate
-            $production = Production::firstOrCreate(
-                ['id_order' => $order->id_order],
-                [
-                    'tanggal_mulai' => now(),
-                    'jumlah_produksi' => $order->jumlah_pesanan
-                ]
-            );
+            $production = Production::firstOrCreate(['id_order' => $order->id_order]);
 
-            // 2. Logika pembuatan estimasi bahan
+            $production->update([
+                'tanggal_mulai'   => now(),
+                'jumlah_produksi' => $order->jumlah_pesanan
+            ]);
+
             if ($production->materials()->count() == 0) {
                 foreach ($order->product->boms as $bom) {
+                    $kebutuhanPerPcs = $bom->jumlah_kebutuhan + ($bom->jumlah_kebutuhan * ($bom->persentase_waste / 100));
+                    $totalKebutuhan = $kebutuhanPerPcs * $order->jumlah_pesanan;
+
                     ProductionMaterial::create([
-                        'id_production' => $production->id_production,
-                        'id_bahanbaku' => $bom->id_bahanbaku,
-                        'jumlah_estimasi' => $bom->jumlah_kebutuhan * $order->jumlah_pesanan
+                        'id_production'   => $production->id_production,
+                        'id_bahanbaku'    => $bom->id_bahanbaku,
+                        'jumlah_estimasi' => $totalKebutuhan
                     ]);
                 }
             }
 
-            // 3. Stock lock
             if ($deduct === 'yes') {
                 foreach ($order->product->boms as $bom) {
-                    $totalNeeded = $bom->jumlah_kebutuhan * $order->jumlah_pesanan;
+                    
+                    $kebutuhanPerPcs = $bom->jumlah_kebutuhan + ($bom->jumlah_kebutuhan * ($bom->persentase_waste / 100));
+                    $totalNeeded = $kebutuhanPerPcs * $order->jumlah_pesanan; 
+
                     $material = $bom->rawMaterial;
 
-                    /* 
-                     * Stok Tersedia = Stok Fisik - Stok Terkunci
-                     */
+                    /* * Stok Tersedia = Stok Fisik - Stok Terkunci
+                    */
                     $availableStock = $material->stok - $material->stok_terkunci;
 
                     if ($availableStock < $totalNeeded) {
@@ -312,9 +313,8 @@ class OrderController extends Controller
                 }
             }
 
-            // 4. Update status
             $order->update([
-                'status_order' => 'produksi',
+                'status_order'   => 'produksi',
                 'tahap_produksi' => 'potong'
             ]);
 
@@ -329,69 +329,69 @@ class OrderController extends Controller
     }
 
     public function finishProduction(Request $request, $id_production)
-{
-    $production = Production::with('materials.rawMaterial', 'order')->findOrFail($id_production);
+    {
+        $production = Production::with('materials.rawMaterial', 'order')->findOrFail($id_production);
 
-    DB::beginTransaction();
-    try {
-        foreach ($production->materials as $pm) {
-            $material = $pm->rawMaterial;
-            
-            // Ambil input. Jika kosong/null, fallback ke jumlah_estimasi
-            $realization = $request->input('realization_' . $pm->id_bahanbaku);
-            if (empty($realization)) {
-                $realization = $pm->jumlah_estimasi;
+        DB::beginTransaction();
+        try {
+            foreach ($production->materials as $pm) {
+                $material = $pm->rawMaterial;
+                
+                // Ambil input. Jika kosong/null, fallback ke jumlah_estimasi
+                $realization = $request->input('realization_' . $pm->id_bahanbaku);
+                if (empty($realization)) {
+                    $realization = $pm->jumlah_estimasi;
+                }
+
+                // 1. Ambil Harga Rata-rata
+                $priceAtFinish = $material->harga ?? 0; 
+                $totalBiaya = (float)$realization * (float)$priceAtFinish;
+
+                // 2. UPDATE TABEL production_materials
+                $pm->update([
+                    'jumlah_realisasi' => $realization,
+                    'harga'            => $priceAtFinish,
+                    'subtotal'         => $totalBiaya
+                ]);
+
+                // 3. POTONG STOK FISIK & BUANG KUNCIAN
+                $newStok = $material->stok - $realization;
+                $newTerkunci = $material->stok_terkunci - $pm->jumlah_estimasi;
+
+                // Jika hasil minus, jadikan 0
+                $material->update([
+                    'stok' => ($newStok < 0) ? 0 : $newStok,
+                    'stok_terkunci' => ($newTerkunci < 0) ? 0 : $newTerkunci
+                ]);
+
+                // 4. CATAT RIWAYAT KELUAR (Stock Movement)
+                \App\Models\StockMovement::create([
+                    'id_bahanbaku'   => $pm->id_bahanbaku,
+                    'tipe_transaksi' => 'keluar',
+                    'jumlah'         => $realization,
+                    'tanggal'        => now(),
+                    'keterangan'     => "Produksi Selesai: " . ($production->order->nama_pelanggan ?? 'Order #'.$production->id_order)
+                ]);
             }
 
-            // 1. Ambil Harga Rata-rata
-            $priceAtFinish = $material->harga ?? 0; 
-            $totalBiaya = (float)$realization * (float)$priceAtFinish;
+            // 5. UPDATE STATUS ORDER JADI SELESAI
+            if ($production->order) {
+                $production->order->update(['status_order' => 'perlu dikirim',
+                'tahap_produksi' => 'selesai'
+                ]);
+                
+            }
 
-            // 2. UPDATE TABEL production_materials
-            $pm->update([
-                'jumlah_realisasi' => $realization,
-                'harga'            => $priceAtFinish,
-                'subtotal'         => $totalBiaya
-            ]);
+            DB::commit();
+            // Redirect ke detail order
+            return redirect()->route('orders.show', $production->id_order)
+                            ->with('success', 'Produksi Selesai! Stok dipotong & modal tercatat.');
 
-            // 3. POTONG STOK FISIK & BUANG KUNCIAN
-            $newStok = $material->stok - $realization;
-            $newTerkunci = $material->stok_terkunci - $pm->jumlah_estimasi;
-
-            // Jika hasil minus, jadikan 0
-            $material->update([
-                'stok' => ($newStok < 0) ? 0 : $newStok,
-                'stok_terkunci' => ($newTerkunci < 0) ? 0 : $newTerkunci
-            ]);
-
-            // 4. CATAT RIWAYAT KELUAR (Stock Movement)
-            \App\Models\StockMovement::create([
-                'id_bahanbaku'   => $pm->id_bahanbaku,
-                'tipe_transaksi' => 'keluar',
-                'jumlah'         => $realization,
-                'tanggal'        => now(),
-                'keterangan'     => "Produksi Selesai: " . ($production->order->nama_pelanggan ?? 'Order #'.$production->id_order)
-            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
-
-        // 5. UPDATE STATUS ORDER JADI SELESAI
-        if ($production->order) {
-            $production->order->update(['status_order' => 'perlu dikirim',
-            'tahap_produksi' => 'selesai'
-            ]);
-            
-        }
-
-        DB::commit();
-        // Redirect ke detail order
-        return redirect()->route('orders.show', $production->id_order)
-                         ->with('success', 'Produksi Selesai! Stok dipotong & modal tercatat.');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
     }
-}
 
     public function updateMaterialUsage(Request $request, $id_production)
     {
@@ -579,11 +579,15 @@ class OrderController extends Controller
         // 2. Ambil atau Buat data Produksi
         $production = Production::firstOrCreate(
             ['id_order' => $id_order],
-            ['tahap_produksi' => 'potong']
+            ['tahap_produksi' => null]
         );
 
-        // 3. Jika produksi baru dibuat & belum punya bahan, salin dari Master BOM
-        if ($production->materials()->count() == 0) {
+        if (in_array(strtolower($order->status_order), ['menunggu bahan', 'siap produksi'])) {
+            
+            // 1. Flush/Hapus snapshot hitungan lama milik order ini agar tidak duplikat
+            $production->materials()->delete();
+            
+            // 2. Tarik resep ter-update dari Master BOM
             $masterBoms = $order->product->boms;
             
             foreach ($masterBoms as $bom) {
@@ -600,10 +604,11 @@ class OrderController extends Controller
             // Refresh data agar materials yang baru dibuat terbaca
             $production->load('materials.rawMaterial');
         }
+        // =========================================================================
 
         $isFinished = in_array($order->status_order, ['perlu dikirim', 'dikirim', 'selesai']);
 
-        // 4. Olah data untuk tabel (sama seperti kodingan Anda sebelumnya)
+        // 4. Olah data untuk tabel 
         $results = [];
         foreach ($production->materials as $pm) {
             $material = $pm->rawMaterial;
@@ -612,12 +617,12 @@ class OrderController extends Controller
             $ketersediaan = $isFinished ? ($pm->jumlah_realisasi ?? 0) : ($material->stok ?? 0);
             
             $results[] = [
-                'nama_bahanbaku' => $material->nama_bahanbaku,
+                'nama_bahanbaku' => $material->nama_bahanbaku ?? 'Material Terhapus',
                 'butuh'          => $butuh,
-                'satuan'         => $material->satuan,
+                'satuan'         => $material->satuan ?? '',
                 'ketersediaan'   => $ketersediaan,
-                'stok_gudang'    => $material->stok,
-                'stok_terkunci'  => $material->stok_terkunci,
+                'stok_gudang'    => $material->stok ?? 0,
+                'stok_terkunci'  => $material->stok_terkunci ?? 0,
                 'realisasi'      => $pm->jumlah_realisasi,
                 'kekurangan'     => ($butuh > $ketersediaan) ? ($butuh - $ketersediaan) : 0,
                 'status'         => ($ketersediaan >= $butuh) ? 'CUKUP' : 'KURANG',

@@ -1,7 +1,8 @@
 @extends('layouts.main')
 @section('page_title', 'Master BOM')
 @section('content')
-<div class="space-y-8" x-data记录="{ showAddModal: false, showEditModal: false, currentBom: {}, selectedProductId: null }">
+{{-- FIX TYPO: x-data sudah dibersihkan dari karakter asing agar Alpine.js aktif normal --}}
+<div class="space-y-8" x-data="{ showAddModal: false, showEditModal: false, currentBom: {}, selectedProductId: null }">
     
     <div>
         <h1 class="text-2xl font-black text-slate-800">Bill of Materials (BOM)</h1>
@@ -76,7 +77,7 @@
                     </tr>
                     @empty
                     <tr>
-                        {{-- PROTEKSI 4: Colspan Dinamis. Jika Admin = 5 Kolom, Jika Selain Admin = 4 Kolom (Biar Simetris) --}}
+                        {{-- PROTEKSI 4: Colspan Dinamis. Jika Admin = 5 Kolom, Jika Selain Admin = 4 Kolom --}}
                         <td colspan="{{ strtolower(auth()->user()->role ?? '') == 'admin' ? 5 : 4 }}" class="px-6 py-10 text-center text-slate-400 italic text-xs">
                             Belum ada bahan baku.
                         </td>
@@ -88,7 +89,7 @@
         @endforeach
     </div>
 
-    {{-- PROTEKSI 5: Sruktur Elemen Modal Tambah & Edit Hanya Dimuat Jika User Adalah Admin --}}
+    {{-- PROTEKSI 5: Struktur Elemen Modal Tambah & Edit Hanya Dimuat Jika User Adalah Admin --}}
     @if(strtolower(auth()->user()->role ?? '') == 'admin')
         {{-- MODAL TAMBAH --}}
         <div x-show="showAddModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
@@ -134,16 +135,24 @@
             </form>
         </div>
 
-        {{-- MODAL EDIT --}}
+        {{-- MODAL EDIT (FIX ROUTE RESOURCE & FIX OBJECT METHOD SERIALIZATION) --}}
         <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak x-transition>
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" @click="showEditModal = false"></div>
-            <form :action="`/bom/${currentBom.id_bom}`" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
-                @csrf @method('PUT')
-                <div class="p-6 border-b border-slate-100 bg-slate-50"><h3 class="text-lg font-bold text-slate-800 uppercase italic">Edit Kebutuhan</h3></div>
+            
+            {{-- Mengarahkan URL dinamis ke route resource '/bom/{id_bom}' --}}
+            <form :action="'/bom/' + currentBom.id_bom" method="POST" class="bg-white w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden">
+                @csrf 
+                @method('PUT')
+                
+                <div class="p-6 border-b border-slate-100 bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800 uppercase italic">Edit Kebutuhan</h3>
+                </div>
+                
                 <div class="p-8 space-y-4">
                     <div class="space-y-1">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Bahan</label>
-                        <input type="text" :value="currentBom.raw_material?.nama_bahanbaku" disabled class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm text-slate-500 font-bold uppercase">
+                        {{-- FIX SINKRONISASI: Menangkap konversi data CamelCase Eloquent ke json_encode snake_case --}}
+                        <input type="text" :value="currentBom.raw_material ? currentBom.raw_material.nama_bahanbaku : 'N/A'" disabled class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-sm text-slate-500 font-bold uppercase">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">

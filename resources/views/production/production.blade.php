@@ -7,7 +7,7 @@
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-black text-slate-800 tracking-tight">Monitoring Production</h1>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight">Monitoring Produksi</h1>
             <p class="text-slate-400 text-sm italic">Pantau dan kelola setiap tahapan pengerjaan di workshop.</p>
         </div>
         
