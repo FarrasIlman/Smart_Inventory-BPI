@@ -42,7 +42,13 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">No Telepon</label>
-                    <input type="text" name="no_telepon" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm">
+                    <input 
+                        type="text" 
+                        name="no_telepon" 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        placeholder="08xxxxxxxxxx"
+                        maxlength="14">
                 </div>
 
                 <div>
@@ -54,7 +60,7 @@
             {{-- SECTION: ORDER --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deadline Produksi</label>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deadline Pesanan</label>
                     <input type="date" name="deadline" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm">
                 </div>
 
@@ -67,14 +73,20 @@
             {{-- TAMBAHAN HARGA --}}
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Harga Satuan</label>
-                <input type="number" name="harga_satuan" required class="w-full bg-green-50 border border-green-200 text-green-700 rounded-2xl px-5 py-3 text-sm">
+                <input 
+                    type="text" 
+                    name="harga_satuan" 
+                    required 
+                    class="w-full bg-green-50 border border-green-200 text-green-700 rounded-2xl px-5 py-3 text-sm"
+                    placeholder="Contoh: 80000"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             </div>
 
             <hr class="border-slate-50">
 
             <div x-data="imageViewer()">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-                    Upload Desain
+                    Upload Desain (Opsional)
                 </label>
 
                 <div class="flex items-center gap-6">

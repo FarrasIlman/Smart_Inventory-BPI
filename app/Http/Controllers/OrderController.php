@@ -32,11 +32,12 @@ class OrderController extends Controller
         $orders = $query
         ->orderByRaw("CASE 
             WHEN status_order = 'menunggu bahan' THEN 1
-            WHEN status_order = 'siap produksi' THEN 2 
-            WHEN status_order = 'produksi' THEN 3
-            WHEN status_order = 'selesai' THEN 4 
-            WHEN status_order = 'dibatalkan' THEN 5
-            ELSE 6 
+            WHEN status_order = 'perlu dikirim' THEN 2
+            WHEN status_order = 'siap produksi' THEN 3
+            WHEN status_order = 'produksi' THEN 4
+            WHEN status_order = 'dikirim' THEN 5
+            WHEN status_order = 'selesai' THEN 6
+            ELSE 7 
         END ASC")
         ->orderBy('deadline', 'asc')
         ->paginate(10);
@@ -584,10 +585,10 @@ class OrderController extends Controller
 
         if (in_array(strtolower($order->status_order), ['menunggu bahan', 'siap produksi'])) {
             
-            // 1. Flush/Hapus snapshot hitungan lama milik order ini agar tidak duplikat
+            // 1. Hapus snapshot hitungan lama milik order
             $production->materials()->delete();
             
-            // 2. Tarik resep ter-update dari Master BOM
+            // 2. Tarik resep dari Master BOM
             $masterBoms = $order->product->boms;
             
             foreach ($masterBoms as $bom) {
@@ -601,11 +602,9 @@ class OrderController extends Controller
                 ]);
             }
             
-            // Refresh data agar materials yang baru dibuat terbaca
+            // 3. Refresh data agar materials yang baru dibuat terbaca
             $production->load('materials.rawMaterial');
         }
-        // =========================================================================
-
         $isFinished = in_array($order->status_order, ['perlu dikirim', 'dikirim', 'selesai']);
 
         // 4. Olah data untuk tabel 
