@@ -70,6 +70,24 @@
                 </a>
                 @endif
 
+                <div x-data="{open: false}">
+                    <button @click="open = !open" class="flex items-center justify-between w-full p-3">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 012.828 0L19.5 5.5a2 2 0 010 2.828l-8.5 8.5H8v-2.5l8.586-8.586z"></path>
+                            </svg>
+                            <span class="text-sm font-semibold">CMS</span>
+                        </div>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" class="pl-12 mt-2 space-y-2">
+                        <a href="#" class="block text-xs text-slate-500 hover:text-white transition">Homepage</a>
+                    </div>
+                </div>
+
                 <div x-data="{ open: false }">
                     <button @click="open = !open" class="sidebar-item w-full flex items-center justify-between p-3 rounded-xl focus:outline-none transition">
                         <div class="flex items-center">

@@ -106,3 +106,5 @@ Route::get('/laporan/stok-bahan/pdf', [ReportController::class, 'materialPdf'])-
 Route::get('/reports/sales/pdf', [ReportController::class, 'salesPdf'])->name('reports.sales.pdf');
 Route::get('/reports/production/pdf', [ReportController::class, 'productionPdf'])->name('reports.production.pdf');
 Route::get('/reports/mutation/pdf', [ReportController::class, 'mutationPdf'])->name('reports.mutation.pdf');
+
+// CMS Controller 

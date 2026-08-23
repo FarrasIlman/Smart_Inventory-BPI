@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $time_end   = $end_date . ' 23:59:59';
 
         // 2. CEK ROLE USER YANG SEDANG LOGIN
-        $role = strtolower(auth()->user()->role ?? '');
+        $role = trim(strtolower(auth()->user()->role ?? ''));
 
         switch ($role) {
             
@@ -32,8 +32,8 @@ class DashboardController extends Controller
             case 'admin':
             case 'manajerial':
                 $omzetJual = Order::where('status_order', 'selesai')->whereBetween('created_at', [$time_start, $time_end])->sum('total_harga');
-                $modalBahan = ProductionMaterial::whereHas('production', function($q) use ($time_start, $time_end) {
-                    $q->whereBetween('created_at', [$time_start, $time_end])->whereHas('order', function($orq) { $orq->where('status_order', 'selesai'); });
+                $modalBahan = ProductionMaterial::whereHas('production.order', function($orq) use ($time_start, $time_end) {
+                    $orq->whereBetween('created_at', [$time_start, $time_end])->where('status_order', 'selesai');
                 })->sum('subtotal');
                 $labaBersih = $omzetJual - $modalBahan;
                 $totalBelanja = Purchase::where('status_pembelian', 'diterima')->whereBetween('created_at', [$time_start, $time_end])->sum('total');
