@@ -25,7 +25,7 @@
         <aside class="w-72 bg-navy text-slate-300 flex flex-col shrink-0">
             <div class="p-8 mb-4">
                 <img src="/img/BPI Logo White.jpeg" alt="Logo" class="h-10 mb-2">
-                <p class="text-[10px] text-blue-400 font-bold tracking-[0.2em] uppercase">Inventory System</p>
+                <p class="text-[10px] text-blue-400 font-bold tracking-[0.2em] uppercase">Admin Panel</p>
             </div>
 
             <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -84,7 +84,7 @@
                     </button>
 
                     <div x-show="open" class="pl-12 mt-2 space-y-2">
-                        <a href="#" class="block text-xs text-slate-500 hover:text-white transition">Homepage</a>
+                        <a href="{{ route('cms.log') }}" class="block text-xs text-slate-500 hover:text-white transition">Homepage</a>
                     </div>
                 </div>
 
@@ -132,20 +132,23 @@
         </aside>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 p-6 flex justify-between items-center px-10">
-                <h2 class="text-xl font-bold text-navy">@yield('page_title')</h2>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Selamat Datang</p>
-                        <p class="text-sm font-bold text-slate-800">{{ auth()->user()->nama_user }} -
-                            <span class="text-blue-600">{{ strtoupper(auth()->user()->role) }}</span>
-                        </p>
+            @if (!View::hasSection('hide_header'))
+                <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 p-6 flex justify-between items-center px-10">
+                    <h2 class="text-xl font-bold text-navy">@yield('page_title')</h2>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Selamat Datang</p>
+                            <p class="text-sm font-bold text-slate-800">{{ auth()->user()->nama_user }} -
+                                <span class="text-blue-600">{{ strtoupper(auth()->user()->role) }}</span>
+                            </p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-100">
+                            {{ strtoupper(substr(auth()->user()->nama_user, 0, 1)) }}
+                        </div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-100">
-                        {{ strtoupper(substr(auth()->user()->nama_user, 0, 1)) }}
-                    </div>
-                </div>
-            </header>
+                </header>
+            @endif
 
             <main class="flex-1 overflow-y-auto p-10">
                 @yield('content')

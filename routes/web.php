@@ -108,3 +108,11 @@ Route::get('/reports/production/pdf', [ReportController::class, 'productionPdf']
 Route::get('/reports/mutation/pdf', [ReportController::class, 'mutationPdf'])->name('reports.mutation.pdf');
 
 // CMS Controller 
+use App\Http\Controllers\CMSController;
+Route::get('/cms-log', [CMSController::class, 'cmslog'])->name('cms.log');
+
+Route::get('/cms-homepage', [CMSController::class, 'blank'])->name('cms.create');
+// Route::post('/cms-homepage/create', [CMSController::class, 'create'])->name('cms.store');
+
+Route::get('/cms-homepage/{id}', [CMSController::class, 'edit'])->name('cms.edit');
+
