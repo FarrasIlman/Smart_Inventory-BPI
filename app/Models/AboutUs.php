@@ -11,6 +11,10 @@ class AboutUs extends Model
 
     protected $table = 'aboutus_content';
 
+    protected $casts = [
+        'metrics' => 'array'
+    ]
+
     protected $fillable = [
         'log_id', 'title', 'description', 'image_url', 'image_public_id', 'bg_config', 'metrics'
     ];
