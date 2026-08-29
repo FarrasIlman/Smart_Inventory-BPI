@@ -15,10 +15,8 @@ class HeroContent extends Model
         'title', 
         'subtitle', 
         'position', 
-        'image_mobile', 
-        'mobile_public_id', 
-        'image_url', 
-        'image_public_id', 
+        'image_id', 
+        'image_mobile_id',
         'is_masked', 
         'opacity', 
         'sort_order', 
@@ -28,5 +26,15 @@ class HeroContent extends Model
     public function logs() 
     {
         return $this->belongsTo(CMSLogs::class, 'log_id');
+    }
+
+    public function images()
+    {
+        return $this->belongsTo(Images::class, 'image_id');
+    }
+
+    public function imageMobile()
+    {
+        return $this->belongsTo(Images::class, 'image_mobile_id');
     }
 }

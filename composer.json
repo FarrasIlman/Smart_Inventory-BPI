@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "cloudinary/cloudinary_php": "^2.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1"
     },
@@ -74,6 +75,9 @@
         }
     },
     "config": {
+        "platform": {
+            "php": "8.2.33"
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
