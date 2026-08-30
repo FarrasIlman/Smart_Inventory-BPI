@@ -125,7 +125,7 @@ class CMSController extends Controller
                     $file = $request->file('about.image');
 
                     $aboutFileName = $file->getClientOriginalName();
-                    $aboutFileSize = $file->getSize()
+                    $aboutFileSize = $file->getSize();
 
                     $uploadAbout = $cloudinary->uploadApi()->upload(
                         $file->getRealPath(), 
