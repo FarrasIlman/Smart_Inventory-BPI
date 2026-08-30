@@ -11,8 +11,8 @@
                 'title' => '',
                 'description' => '',
                 'position' => 'left',
-                'image_id' => null,
-                'image_mobile_id' => null,
+                'image' => null,
+                'image_mobile' => null,
                 'is_masked' => false,
                 'opacity' => 0,
                 'sort_order' => 1
@@ -33,7 +33,9 @@
                     'title' => '3+',
                     'description' => 'Tahun pengalaman'
                 ]
-            ]
+            ],
+            'image' => null
+
         ];
     @endphp
 
@@ -262,6 +264,65 @@
                             <option value="solid">Solid</option>
                             <option value="gradient">Gradient</option>
                     </select>
+                </div>
+
+                <div x-data="{
+                    aboutUrl: about.image?.image_url || null,
+                    aboutFileName: about.image?.file_name || null,
+                    aboutFileSize: about.image?.file_size ? (about.image.file_size / 1024).toFixed(2) + ' KB' : null
+                }" class="mt-4">
+
+                    <div x-show="!aboutUrl" class="flex flex-col gap-2">
+                        <label class="font-semibold text-sm">Gambar Tentang Kita</label>
+                        <div class="rounded-lg border-2 border-dashed border-blue-500 relative flex items-center justify-center p-5">
+                            <input type="file" name="about[image]" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" @change="
+                                const file = event.target.files[0];
+                                if (file) {
+                                    aboutUrl = URL.createObjectURL(file);
+                                    aboutFileName = file.name;
+                                    aboutFileSize = ''
+    
+                                    if (file.size > 1024) {
+                                        aboutFileSize = (file.size / (1024 * 1024)).toFixed(1) + ' KB';
+                                    } else {
+                                        aboutFileSize = (file.size /  1024).toFixed(2) + ' MB';
+                                    }
+                                }
+                            " />
+                            <p class="text-sm font-semibold text-gray-500">Upload Gambar</p>
+                        </div>
+                    </div>
+
+                    <div x-show="aboutUrl" class="p-2 shadow-md flex flex-row items-center justify-between rounded-lg border border-gray-300">
+                        <div class="flex flex-row gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                <path d="M14 2v4a1 1 0 0 0 1 1h4" />
+                                <circle cx="10" cy="12" r="2" />
+                                <path d="m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22" />
+                            </svg>
+                            <div class="flex flex-col gap-2">
+                                <a :href="aboutUrl" target="_blank" x-text="aboutFileName" class="text-sm font-semibold text-blue-500 cursor-pointer"></a>
+                                <p class="text-xs font-medium text-gray-500" x-text="aboutFileSize"></p>
+                            </div>
+                        </div>
+                        <button type="button" @click="aboutUrl = null; aboutFileName = null; aboutFileSize = null;"
+                            class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 cursor-pointer"
+                            title="Hapus Gambar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div x-show="about.bg_config.type === 'solid'" class="flex flex-col gap-1 mt-4">

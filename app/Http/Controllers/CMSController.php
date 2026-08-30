@@ -118,6 +118,45 @@ class CMSController extends Controller
                 }
             }
 
+            if ($request->has('about')) {
+                $aboutImageId = null;
+
+                if ($request->hasFile('about.image')) {
+                    $file = $request->file('about.image');
+
+                    $aboutFileName = $file->getClientOriginalName();
+                    $aboutFileSize = $file->getSize()
+
+                    $uploadAbout = $cloudinary->uploadApi()->upload(
+                        $file->getRealPath(), 
+                        ['folder' => 'aboutus']
+                    ); 
+
+                    $aboutImageUrl = $uploadAbout['secure_url'];
+                    $aboutImagePublicId = $uploadAbout['public_id'];
+
+                    $saveAboutImage = Images::create([
+                        'image_url' => $aboutImageUrl, 
+                        'image_public_id' => $aboutImagePublicId, 
+                        'file_name' => $aboutFileName, 
+                        'image_size' => $aboutFileSize 
+                    ]);
+
+                    $aboutImageId = $saveAboutImage->id;
+                }
+
+                $aboutData = $request->about;
+
+                AboutUs::create([
+                    'log_id' => $log->id, 
+                    'title' => $aboutData['title'], 
+                    'description' => $aboutData['description'], 
+                    'bg_config' => $aboutData['bg_config'], 
+                    'metrics' => $aboutData['metrics'], 
+                    'image_id' => $aboutImageId
+                ]);
+            }
+
             // hero end
 
             return redirect()->route('cms.log')->with('success', 'Banner homepage berhasil dibuat');

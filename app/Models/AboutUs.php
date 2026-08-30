@@ -12,14 +12,14 @@ class AboutUs extends Model
     protected $table = 'aboutus_content';
 
     protected $casts = [
-        'metrics' => 'array'
-    ]
-
-    protected $fillable = [
-        'log_id', 'title', 'description', 'image_url', 'image_public_id', 'bg_config', 'metrics'
+        'metrics' => 'array',
     ];
 
-    public function logs () 
+    protected $fillable = [
+        'log_id', 'title', 'description', 'bg_config', 'metrics', 'image_id'
+    ];
+
+    public function logs()
     {
         return $this->belongsTo(CMSLogs::class, 'log_id');
     }
