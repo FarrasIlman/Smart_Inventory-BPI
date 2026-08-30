@@ -12,7 +12,7 @@ class ServiceDetail extends Model
     protected $table = 'service_detail';
 
     protected $fillable = [
-        'service_id', 'name', 'description', 'image_url', 'image_public_id', 'sort_order'
+        'service_id', 'name', 'description', 'image_id'
     ];
 
     public function service()

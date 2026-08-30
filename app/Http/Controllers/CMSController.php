@@ -6,6 +6,8 @@ use App\Models\AboutUs;
 use App\Models\CMSLogs;
 use App\Models\HeroContent;
 use App\Models\Images;
+use App\Models\Services;
+use App\Models\ServiceDetail;
 use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +28,9 @@ class CMSController extends Controller
         $log_id = null;
         $heroes = collect();
         $abouts = new AboutUs;
+        $service = new Services;
 
-        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts'));
+        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service'));
     }
 
     public function edit($id)
@@ -118,6 +121,10 @@ class CMSController extends Controller
                 }
             }
 
+            // hero end
+
+            // about us start
+
             if ($request->has('about')) {
                 $aboutImageId = null;
 
@@ -157,7 +164,62 @@ class CMSController extends Controller
                 ]);
             }
 
-            // hero end
+            // about us end
+
+            // service start
+
+            if ($request->has('service')) {
+                $serviceData = $request->service; 
+
+                $saveService = Services::create([
+                    'log_id' => $log->id, 
+                    'title' => $serviceData['title'],
+                    'description' => $serviceData['description'],
+                    'bg_config' => $serviceData['bg_config']
+                ]);
+
+                if (isset($serviceData['details'])) {
+                    foreach ($serviceData['details'] as $index => $detail) {
+
+                        $imageId = null;
+                        
+                        if ($request->hasFile('service.details.' . $index . '.image')) {
+                            $file = $request->file('service.details.' .$index. '.image');
+
+                            $fileName = $file->getClientOriginalName() . '.' . $file->getClientOriginalExtension();
+                            $fileSize = $file->getSize();
+
+                            $uploadService = $cloudinary->uploadApi()->upload(
+                                $file->getRealPath(), 
+                                ['folder' => 'service']
+                            );
+
+                            $serviceImgUrl = $uploadService['secure_url'];
+                            $servicePublicId = $uploadService['public_id'];
+
+                            $saveServiceImg = Images::create([
+                                'image_url' => $serviceImgUrl, 
+                                'image_public_id' => $servicePublicId, 
+                                'file_name' => $fileName, 
+                                'image_size' => $fileSize
+                            ]);
+
+                            $imageId = $saveServiceImg->id;
+                        }
+
+                        ServiceDetail::create([
+                            'service_id' => $saveService->id, 
+                            'name' => $detail['name'], 
+                            'description' => $detail['description'], 
+                            'image_id' => $imageId
+                        ]);
+                    }
+                }
+            }
+
+            // service end
+
+           
 
             return redirect()->route('cms.log')->with('success', 'Banner homepage berhasil dibuat');
         });
