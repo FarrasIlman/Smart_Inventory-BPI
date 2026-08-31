@@ -19,7 +19,6 @@ class HeroContent extends Model
         'image_mobile_id',
         'is_masked', 
         'opacity', 
-        'sort_order', 
         'log_id'
     ];
 

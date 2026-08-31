@@ -50,7 +50,7 @@ class CMSController extends Controller
             $log = CMSLogs::create([
                 'created_by' => Auth::user()?->username,
                 'status' => 'WAITING_REVIEW',
-                'notes' => 'create homepage banner',
+                'notes' => $request->notes,
             ]);
 
             $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
@@ -116,7 +116,6 @@ class CMSController extends Controller
                         'subtitle' => $heroData['subtitle'],
                         'image_id' => $desktopId,
                         'image_mobile_id' => $mobileId,
-                        'sort_order' => $heroData['sort_order'],
                     ]);
                 }
             }
