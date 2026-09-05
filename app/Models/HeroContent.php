@@ -11,6 +11,11 @@ class HeroContent extends Model
 
     protected $table = 'hero_content';
 
+    protected $casts = [
+        'is_masked' => 'boolean', 
+        'opacity' => 'integer'
+    ];
+
     protected $fillable = [
         'title', 
         'subtitle', 

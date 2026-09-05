@@ -11,6 +11,8 @@ class CMSLogs extends Model
 
     protected $table = 'cms_logs';
 
+    const UPDATED_AT = null;
+
     protected $fillable = [
         'created_by', 
         'status', 

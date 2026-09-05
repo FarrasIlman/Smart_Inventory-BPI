@@ -49,7 +49,7 @@ class CMSController extends Controller
 
             $log = CMSLogs::create([
                 'created_by' => Auth::user()?->username,
-                'status' => 'WAITING_REVIEW',
+                'status' => 'waiting_approval',
                 'notes' => $request->notes,
             ]);
 
@@ -114,6 +114,9 @@ class CMSController extends Controller
                         'log_id' => $log->id,
                         'title' => $heroData['title'],
                         'subtitle' => $heroData['subtitle'],
+                        'is_masked' => filter_var($heroData['is_masked'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'position' => $heroData['position'] ?? 'left',
+                        'opacity' => $heroData['opacity'] ?? 0,
                         'image_id' => $desktopId,
                         'image_mobile_id' => $mobileId,
                     ]);
