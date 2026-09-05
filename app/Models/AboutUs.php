@@ -13,6 +13,7 @@ class AboutUs extends Model
 
     protected $casts = [
         'metrics' => 'array',
+        'bg_config' => 'array'
     ];
 
     protected $fillable = [
@@ -22,5 +23,10 @@ class AboutUs extends Model
     public function logs()
     {
         return $this->belongsTo(CMSLogs::class, 'log_id');
+    }
+
+    public function image()
+    {
+        return $this->belongsTo(Images::class, 'image_id');
     }
 }

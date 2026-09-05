@@ -128,11 +128,10 @@
                                 <div class="flex flex-col gap-1">
                                     <label class="text-sm font-semibold">Masking Gambar</label>
                                     <select x-model.boolean="hero.is_masked" :name="`heroes[${index}][is_masked]`" @change="
-                                        if (hero.is_masked === false) {
-                                            hero.opacity = 0;
-                                        }
-                                    "
-                                        class="text-sm text-gray-500 font-medium p-2 rounded-lg border border-gray-300">
+                                            if (hero.is_masked === false) {
+                                                hero.opacity = 0;
+                                            }
+                                        " class="text-sm text-gray-500 font-medium p-2 rounded-lg border border-gray-300">
                                         <option value="false">Tidak</option>
                                         <option value="true">Ya</option>
                                     </select>
@@ -140,16 +139,17 @@
 
                                 <div x-show="hero.is_masked == true" class="flex flex-col gap-1">
                                     <label class="text-sm font-semibold">Opacity Masking</label>
-                                    <input type="number" x-model="hero.opacity" :name="`heroes[${index}][opacity]`" min="0" max="100" :required="hero.is_masked == true"
+                                    <input type="number" x-model="hero.opacity" :name="`heroes[${index}][opacity]`" min="0"
+                                        max="100" :required="hero.is_masked == true"
                                         class="p-2 text-sm text-gray-500 font-medium border border-gray-300 rounded-md focus:outline-none focus:border-blue-400">
                                 </div>
 
                                 {{-- Upload Image Desktop Start --}}
                                 <div x-data="{ 
-                                                                                                                previewUrl: hero.image?.image_url || null,
-                                                                                                                fileName: hero.image?.file_name || null, 
-                                                                                                                fileSize: hero.image?.file_size ? (hero.image.file_size / 1024).toFixed(1) + ' KB' : null
-                                                                                                            }"
+                                                                                                                    previewUrl: hero.image?.image_url || null,
+                                                                                                                    fileName: hero.image?.file_name || null, 
+                                                                                                                    fileSize: hero.image?.image_size ? (hero.image.image_size / 1024).toFixed(1) + ' KB' : null
+                                                                                                                }"
                                     class="flex flex-col gap-1">
                                     <label class="font-semibold text-sm">Upload Gambar Slide Hero</label>
 
@@ -158,22 +158,22 @@
                                         <p class="text-sm text-blue-500 font-semibold">Upload Gambar</p>
                                         <input type="file" :name="`heroes[${index}][image]`" accept="image/*"
                                             class="absolute inset-0 z-20 opacity-0" @change="
-                                                                                                                    const file = event.target.files[0];
-                                                                                                                    if (file) {
-                                                                                                                        if (file.size >= (1024 * 1024)) {
-                                                                                                                            {{-- fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB'; --}}
-                                                                                                                            uploadWarning = true;
-                                                                                                                            previewUrl = null;
-                                                                                                                            fileName = null;
-                                                                                                                            fileSize = null;
-                                                                                                                            event.target.value = '';
-                                                                                                                            return;
-                                                                                                                        } 
+                                                                                                                        const file = event.target.files[0];
+                                                                                                                        if (file) {
+                                                                                                                            if (file.size >= (1024 * 1024)) {
+                                                                                                                                {{-- fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB'; --}}
+                                                                                                                                uploadWarning = true;
+                                                                                                                                previewUrl = null;
+                                                                                                                                fileName = null;
+                                                                                                                                fileSize = null;
+                                                                                                                                event.target.value = '';
+                                                                                                                                return;
+                                                                                                                            } 
 
-                                                                                                                        previewUrl = URL.createObjectURL(file);
-                                                                                                                        fileName = file.name;
-                                                                                                                        fileSize = (file.size / 1024).toFixed(2) + ' KB';
-                                                                                                                    }">
+                                                                                                                            previewUrl = URL.createObjectURL(file);
+                                                                                                                            fileName = file.name;
+                                                                                                                            fileSize = (file.size / 1024).toFixed(2) + ' KB';
+                                                                                                                        }">
                                     </div>
 
                                     <template x-if="previewUrl">
@@ -221,31 +221,31 @@
 
                                 {{-- Upload Image Mobile Start --}}
                                 <div x-data="{
-                                                                                                            previewMobileUrl: hero.image_mobile?.image_url || null, 
-                                                                                                            mobileFileName: hero.image_mobile?.file_name || null, 
-                                                                                                            mobileFileSize: hero.image_mobile?.file_size ? (hero.image.file_size / 1024).toFixed(1) + ' KB' : null
-                                                                                                        }"
+                                                                                                                previewMobileUrl: hero.image_mobile?.image_url || null, 
+                                                                                                                mobileFileName: hero.image_mobile?.file_name || null, 
+                                                                                                                mobileFileSize: hero.image_mobile?.image_size ? (hero.image.image_size / 1024).toFixed(1) + ' KB' : null
+                                                                                                            }"
                                     class="flex flex-col gap-1">
                                     <label class="font-semibold text-sm">Upload Gambar Slide Hero Mobile</label>
                                     <div x-show="!previewMobileUrl"
                                         class="p-4 rounded-lg border-2 border-dashed border-blue-500 relative flex items-center justify-center hover:bg-gray-100">
                                         <input type="file" :name="`heroes[${index}][image_mobile]`" accept="image/*"
                                             class="absolute inset-0 z-20 opacity-0" @change="
-                                                                                                                    const file = event.target.files[0];
+                                                                                                                        const file = event.target.files[0];
 
-                                                                                                                    if (file.size >= (1024 * 1024)) {
-                                                                                                                        uploadWarning = true;
-                                                                                                                        previewUrl = null;
-                                                                                                                        fileName = null;
-                                                                                                                        fileSize = null;
-                                                                                                                        event.target.value = '';
-                                                                                                                        return;
-                                                                                                                    } 
+                                                                                                                        if (file.size >= (1024 * 1024)) {
+                                                                                                                            uploadWarning = true;
+                                                                                                                            previewUrl = null;
+                                                                                                                            fileName = null;
+                                                                                                                            fileSize = null;
+                                                                                                                            event.target.value = '';
+                                                                                                                            return;
+                                                                                                                        } 
 
-                                                                                                                    previewMobileUrl = URL.createObjectURL(file);
-                                                                                                                    mobileFileName = file.name;
-                                                                                                                    mobileFileSize = (file.size / 1024).toFixed(2) + ' KB';
-                                                                                                                ">
+                                                                                                                        previewMobileUrl = URL.createObjectURL(file);
+                                                                                                                        mobileFileName = file.name;
+                                                                                                                        mobileFileSize = (file.size / 1024).toFixed(2) + ' KB';
+                                                                                                                    ">
                                         <p class="text-sm font-semibold text-blue-500">Upload Gambar</p>
                                     </div>
 
@@ -321,12 +321,12 @@
                 <div class="flex flex-col gap-1 mt-4">
                     <label class="text-sm font-semibold">Warna Background</label>
                     <select x-model="about.bg_config.type" @change="
-                                                                                if (about.bg_config.type === 'solid') {
-                                                                                    about.bg_config.colors = [about.bg_config.colors[0] || '#ffffff'];
-                                                                                } else if (about.bg_config.type === 'gradient' && about.bg_config.colors.length < 2) {
-                                                                                    about.bg_config.colors.push('#000000');
-                                                                                }
-                                                                            "
+                                                                                    if (about.bg_config.type === 'solid') {
+                                                                                        about.bg_config.colors = [about.bg_config.colors[0] || '#ffffff'];
+                                                                                    } else if (about.bg_config.type === 'gradient' && about.bg_config.colors.length < 2) {
+                                                                                        about.bg_config.colors.push('#000000');
+                                                                                    }
+                                                                                "
                         class="p-2 text-sm font-medium text-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500">
                         <option value="solid">Solid</option>
                         <option value="gradient">Gradient</option>
@@ -353,9 +353,9 @@
                                 class="p-2 border border-gray-300 rounded-lg text-sm font-semibold focus:outline-none" />
                             <button x-show="about.bg_config.colors.length > 1" type="button"
                                 class="px-4 py-2 bg-red-500 rounded-lg text-white text-sm" @click="
-                                                                                            about.bg_config.colors.splice(index, 1);
-                                                                                            about.bg_config.type === 'solid';
-                                                                                        ">
+                                                                                                about.bg_config.colors.splice(index, 1);
+                                                                                                about.bg_config.type === 'solid';
+                                                                                            ">
                                 Hapus
                             </button>
                         </div>
@@ -367,10 +367,10 @@
                 <input type="hidden" name="about[bg_config]" :value="JSON.stringify(about.bg_config)" />
 
                 <div x-data="{
-                                                                            aboutUrl: about.image?.image_url || null,
-                                                                            aboutFileName: about.image?.file_name || null,
-                                                                            aboutFileSize: about.image?.file_size ? (about.image.file_size / 1024).toFixed(2) + ' KB' : null
-                                                                        }" class="mt-4">
+                                                                                aboutUrl: about.image?.image_url || null,
+                                                                                aboutFileName: about.image?.file_name || null,
+                                                                                aboutFileSize: about.image?.image_size ? (about.image.image_size / 1024).toFixed(2) + ' KB' : null
+                                                                            }" class="mt-4">
 
                     <div x-show="!aboutUrl" class="flex flex-col gap-2">
                         <label class="font-semibold text-sm">Gambar Tentang Kita</label>
@@ -378,21 +378,21 @@
                             class="rounded-lg border-2 border-dashed border-blue-500 relative flex items-center justify-center p-5">
                             <input type="file" name="about[image]" accept="image/*"
                                 class="absolute inset-0 opacity-0 cursor-pointer" @change="
-                                                                                        const file = event.target.files[0];
-                                                                                        if (file) {
-                                                                                            if (file.size > (1024 * 1024)) {
-                                                                                                uploadWarning = true;
-                                                                                                aboutUrl = null;
-                                                                                                aboutFileName = null;
-                                                                                                event.target.value = '';
-                                                                                                return;
-                                                                                            } 
+                                                                                            const file = event.target.files[0];
+                                                                                            if (file) {
+                                                                                                if (file.size > (1024 * 1024)) {
+                                                                                                    uploadWarning = true;
+                                                                                                    aboutUrl = null;
+                                                                                                    aboutFileName = null;
+                                                                                                    event.target.value = '';
+                                                                                                    return;
+                                                                                                } 
 
-                                                                                            aboutUrl = URL.createObjectURL(file);
-                                                                                            aboutFileName = file.name;
-                                                                                            aboutFileSize = (file.size / 1024).toFixed(2) + ' KB';
-                                                                                        }
-                                                                                    " />
+                                                                                                aboutUrl = URL.createObjectURL(file);
+                                                                                                aboutFileName = file.name;
+                                                                                                aboutFileSize = (file.size / 1024).toFixed(2) + ' KB';
+                                                                                            }
+                                                                                        " />
                             <p class="text-sm font-semibold text-blue-500">Upload Gambar</p>
                         </div>
                     </div>
@@ -481,12 +481,12 @@
                     <select x-model="service.bg_config.type"
                         class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:border-gray-500 text-sm"
                         @change="
-                                                                                if (service.bg_config.type === 'solid') {
-                                                                                    service.bg_config.colors = [service.bg_config.colors[0] || '#ffffff'];
-                                                                                } else if (service.bg_config.type === 'gradient' && service.bg_config.colors.length < 2) {
-                                                                                    service.bg_config.colors.push('#000000');
-                                                                                }
-                                                                            ">
+                                                                                    if (service.bg_config.type === 'solid') {
+                                                                                        service.bg_config.colors = [service.bg_config.colors[0] || '#ffffff'];
+                                                                                    } else if (service.bg_config.type === 'gradient' && service.bg_config.colors.length < 2) {
+                                                                                        service.bg_config.colors.push('#000000');
+                                                                                    }
+                                                                                ">
                         <option value="solid">Solid</option>
                         <option value="gradient">Gradient</option>
                     </select>
@@ -511,11 +511,11 @@
                                 class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-300 text-sm">
                             <button x-show="service.bg_config.colors.length > 1" type="button"
                                 class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold text-sm" @click="
-                                                                                        service.bg_config.colors.splice(index, 1);
-                                                                                        if (service.bg_config.colors.length < 2) {
-                                                                                            service.bg_config.type = 'solid';
-                                                                                        }
-                                                                                    ">Hapus</button>
+                                                                                            service.bg_config.colors.splice(index, 1);
+                                                                                            if (service.bg_config.colors.length < 2) {
+                                                                                                service.bg_config.type = 'solid';
+                                                                                            }
+                                                                                        ">Hapus</button>
                         </div>
                     </template>
                     <button type="button" x-show="service.bg_config.colors.length < 3"
@@ -532,8 +532,8 @@
                         <label class="text-sm font-bold">Detail Layanan Kami</label>
                         <button type="button" class="text-sm font-semibold text-white bg-gray-700 px-4 py-2 rounded-lg"
                             @click="
-                                                                                    service.details.push({name: '', description: '', image_id: null});
-                                                                                ">
+                                                                                        service.details.push({name: '', description: '', image_id: null});
+                                                                                    ">
                             Tambah Detail
                         </button>
                     </div>
@@ -559,29 +559,30 @@
                                     class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"></textarea>
                             </div>
                             <div x-data="{
-                                                                                        serviceImgUrl: detail.image?.image_url || null, 
-                                                                                        serviceFileName: detail.image?.file_name || null, 
-                                                                                        serviceFileSize: detail.image?.file_size ? (detail.image.file_size / 1024).toFixed(1) + ' KB' : null
-                                                                                    }" class="flex flex-col gap-1 mt-2">
+                                                                                            serviceImgUrl: detail.image?.image_url || null, 
+                                                                                            serviceFileName: detail.image?.file_name || null, 
+                                                                                            serviceFileSize: detail.image?.image_size ? (detail.image.image_size / 1024).toFixed(1) + ' KB' : null
+                                                                                        }"
+                                class="flex flex-col gap-1 mt-2">
                                 <p class="text-sm font-semibold">Gambar Layanan</p>
                                 <div x-show="!serviceImgUrl"
                                     class="rounded-lg border-2 border-dashed border-blue-500 flex items-center justify-center relative p-4 hover:bg-gray-200">
-                                    <input type="file" x-model="detail.image" :name="`service[details][${index}][image]`"
+                                    <input type="file" :name="`service[details][${index}][image]`"
                                         accept="image/*" class="absolute z-20 inset-0 opacity-0" @change="
-                                                                                                const file = event.target.files[0];
+                                                                                                    const file = event.target.files[0];
 
-                                                                                                if (file.size >= (1024 * 1024)) {
-                                                                                                    uploadWarning = true;
-                                                                                                    serviceImgUrl = null;
-                                                                                                    serviceFileName = null;
-                                                                                                    event.target.value = '';
-                                                                                                    return;
-                                                                                                } 
+                                                                                                    if (file.size >= (1024 * 1024)) {
+                                                                                                        uploadWarning = true;
+                                                                                                        serviceImgUrl = null;
+                                                                                                        serviceFileName = null;
+                                                                                                        event.target.value = '';
+                                                                                                        return;
+                                                                                                    } 
 
-                                                                                                serviceImgUrl = URL.createObjectURL(file);
-                                                                                                serviceFileName = file.name;
-                                                                                                serviceFileSize = (file.size / 1024).toFixed(2) + ' KB';
-                                                                                            ">
+                                                                                                    serviceImgUrl = URL.createObjectURL(file);
+                                                                                                    serviceFileName = file.name;
+                                                                                                    serviceFileSize = (file.size / 1024).toFixed(2) + ' KB';
+                                                                                                ">
                                     <p class="text-sm font-semibold text-blue-500">Upload Gambar</p>
                                 </div>
 
@@ -603,10 +604,10 @@
                                         </div>
                                     </div>
                                     <button type="button" @click="
-                                                                                                serviceImgUrl = null;
-                                                                                                serviceFileName = null;
-                                                                                                serviceFileSize = null;
-                                                                                            "
+                                                                                                    serviceImgUrl = null;
+                                                                                                    serviceFileName = null;
+                                                                                                    serviceFileSize = null;
+                                                                                                "
                                         class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 cursor-pointer"
                                         title="Hapus Gambar">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"

@@ -32,7 +32,7 @@ class HeroContent extends Model
         return $this->belongsTo(CMSLogs::class, 'log_id');
     }
 
-    public function images()
+    public function image()
     {
         return $this->belongsTo(Images::class, 'image_id');
     }

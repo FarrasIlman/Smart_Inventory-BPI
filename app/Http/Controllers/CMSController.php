@@ -13,6 +13,7 @@ use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CMSController extends Controller
 {
@@ -73,9 +74,31 @@ class CMSController extends Controller
     {
         $log = CMSLogs::findOrFail($id);
         $log_id = $log->id;
-        $heroes = HeroContent::where('log_id', $id)->get();
+        $heroes = HeroContent::with(['image', 'imageMobile'])->where('log_id', $id)->get();
+        $abouts = AboutUs::with('image')->where('log_id', $id)->first();
+        $service = Services::with('details.image')->where('log_id', $id)->first();
 
-        return view('cms.detailhomepage', compact('log_id', 'heroes'));
+        $data = [
+            'heroes' => $heroes, 
+            'about' => $abouts, 
+            'service' => $service
+        ];
+
+        Log::info('data : ', [$data]);
+
+        if ($abouts->bg_config && is_string($abouts->bg_config)) {
+            $abouts->bg_config = json_decode($abouts->bg_config, true);
+        }
+        
+        if ($abouts->metrics && is_string($abouts->metrics)) {
+            $abouts->metrics = json_decode($abouts->metrics, true);
+        }
+
+        if ($service->bg_config && is_string($service->bg_config)) {
+            $service->bg_config = json_decode($service->bg_config, true);
+        }
+
+        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service'));
     }
 
     public function create(Request $request)
@@ -196,8 +219,8 @@ class CMSController extends Controller
                     'log_id' => $log->id, 
                     'title' => $aboutData['title'], 
                     'description' => $aboutData['description'], 
-                    'bg_config' => $aboutData['bg_config'], 
-                    'metrics' => $aboutData['metrics'], 
+                    'bg_config' => is_string($aboutData['bg_config']) ? json_decode($aboutData['bg_config'], true) : $aboutData['bg_config'], 
+                    'metrics' => is_string($aboutData['metrics']) ? json_decode($aboutData['metrics'], true) : $aboutData['metrics'], 
                     'image_id' => $aboutImageId
                 ]);
             }
@@ -213,7 +236,7 @@ class CMSController extends Controller
                     'log_id' => $log->id, 
                     'title' => $serviceData['title'],
                     'description' => $serviceData['description'],
-                    'bg_config' => $serviceData['bg_config']
+                    'bg_config' => is_string($serviceData['bg_config']) ? json_decode($serviceData['bg_config'], true) : $serviceData['bg_config']
                 ]);
 
                 if (isset($serviceData['details'])) {

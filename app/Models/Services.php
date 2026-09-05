@@ -8,6 +8,10 @@ class Services extends Model
 {
     protected $table = 'services';
 
+    protected $casts = [
+        'bg_config' => 'array'
+    ];
+
     protected $fillable = [
         'log_id', 
         'title', 
@@ -20,7 +24,7 @@ class Services extends Model
         return $this->belongsTo(CMSLogs::class, 'log_id');
     } 
 
-    public function ServiceList()
+    public function details()
     {
         return $this->hasMany(ServiceDetail::class, 'service_id');
     }

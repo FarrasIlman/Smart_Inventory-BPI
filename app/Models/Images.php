@@ -24,4 +24,14 @@ class Images extends Model
     {
         return $this->hasMany(HeroContent::class, 'image_mobile_id');
     }
+
+    public function aboutUs() 
+    {
+        return $this->hasOne(AboutUs::class, 'image_id');
+    }
+
+    public function serviceDetail()
+    {
+        return $this->hasOne(ServiceDetail::class, 'image_id');
+    }
 }
