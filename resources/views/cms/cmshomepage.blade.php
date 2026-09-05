@@ -34,18 +34,18 @@
                 @endif
 
                 @foreach ($logs as $index => $log)
-                    <tr class="border-b border-b-gray-200 text-sm h-9">
+                    <tr class="border-b border-b-gray-200 text-sm h-12">
                         <td class="w-1/8 text-center">
                             <p>{{ $index + 1 }}</p>
                         </td>
                         <td class="w-2/8 text-left">
-                            <p>{{ $log->status }}</p>
+                            <p class="p-2 w-fit text-xs font-semibold rounded-lg {{ $log->status_color }}">{{ $log->status_label }}</p>
                         </td>
                         <td class="w-3/8 text-left">
                             <p class="line-clamp-1">{{ $log->notes }}</p>
                         </td>
                         <td class="w-1/8 text-left">
-                            <p>{{ $log->created_at }}</p>
+                            <p class="text-xs font-semibold">{{ $log->converted_date }}</p>
                         </td>
                         <td class="w-1/8 text-center pr-10">
                             <div class="flex items-center justify-center cursor-pointer">

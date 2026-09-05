@@ -8,6 +8,7 @@ use App\Models\HeroContent;
 use App\Models\Images;
 use App\Models\Services;
 use App\Models\ServiceDetail;
+use Carbon\Carbon;
 use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +16,45 @@ use Illuminate\Support\Facades\DB;
 
 class CMSController extends Controller
 {
+    protected function convertStatus($status)
+    {
+        return match ($status) {
+            'waiting_approval' => 'Menunggu Review', 
+            'rejected' => 'Ditolak', 
+            'approved' => 'Disetujui', 
+            'draft' => 'Draft', 
+            'published' => 'Ditayangkan'
+        };
+    }
+
+    protected function provideColors($status)
+    {
+        return match ($status) {
+            'waiting_approval' => 'bg-amber-100 text-amber-800 border border-amber-300',
+            'rejected'         => 'bg-red-100 text-red-800 border border-red-300',
+            'approved'         => 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+            'draft'            => 'bg-slate-100 text-slate-700 border border-slate-300',
+            'published'        => 'bg-blue-100 text-blue-800 border border-blue-300',
+            default            => 'bg-gray-100 text-gray-700 border border-gray-300',
+        };
+    }
+
+    protected function convertDate($date)
+    {
+        return Carbon::parse($date)->setTimezone('Asia/Jakarta')->format('d/m/Y - H:i:s');
+    }
+ 
     public function cmslog()
     {
 
         $logs = CMSLogs::orderBy('created_at', 'desc')->get();
+
+        $logs->transform(function ($log) {
+            $log->status_label = $this->convertStatus($log->status);
+            $log->status_color = $this->provideColors($log->status);
+            $log->converted_date =$this->convertDate($log->created_at);
+            return $log;
+        });
 
         return view('cms.cmshomepage', compact('logs'));
     }

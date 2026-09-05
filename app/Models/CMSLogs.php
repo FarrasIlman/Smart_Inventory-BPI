@@ -16,7 +16,9 @@ class CMSLogs extends Model
     protected $fillable = [
         'created_by', 
         'status', 
-        'notes'
+        'notes',
+        'created_at', 
+        'updated_at'
     ];
 
 
