@@ -303,8 +303,6 @@ class CMSController extends Controller
 
             // service end
 
-           
-
             return redirect()->route('cms.log')->with('success', 'Banner homepage berhasil dibuat');
         });
 
@@ -315,6 +313,7 @@ class CMSController extends Controller
         $status = $request->input('status');
         $logId = $request->log_id;
         $notes = $request->notes;
+        $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
 
         if ($status === 'approved') {
             $nowShowing = CMSLogs::where('status', '=', 'approved')->first();
@@ -335,8 +334,81 @@ class CMSController extends Controller
                 'notes' => $notes
             ]);
         } else {
-            return DB::transaction(function () use ($request, $logId, $status) {
-                // 
+            return DB::transaction(function () use ($cloudinary, $request, $logId, $status) {
+                if ($status === 'waiting_approval') {
+                    CMSLogs::where('id', '=', $logId)->update([
+                        'status' => 'waiting_approval'
+                    ]);
+                }
+
+                if ($request->has('heroes')) {
+                    foreach ($request->heroes as $index => $heroData) {
+                        $desktopId = $heroData['image_id'] ?? null;
+                        $mobileId = $heroData['image_mobile_id'] ?? null;
+
+                        if ($request->hasFile('heroes.' .$index. '.image')) {
+                            $file = $request->file('heroes.' .$index. '.image');
+
+                            $fileName = $file->getClientOriginalName();
+                            $fileSize = $file->getSize();
+
+                            $uploadDesktop = $cloudinary->uploadApi()->upload(
+                                $file->getRealPath(), 
+                                ['folder' => 'hero_banners/desktop']
+                            );
+
+                            $url = $uploadDesktop['secure_url'];
+                            $publicId = $uploadDesktop['public_id'];
+
+                            $saveImage =  Images::create([
+                                'image_url' => $url, 
+                                'image_public_id' => $publicId, 
+                                'file_name' => $fileName, 
+                                'image_size' => $fileSize
+                            ]);
+
+                            $desktopId = $saveImage->id;
+                        }
+
+                        if ($request->hasFile('heroes.' .$index. '.image_mobile')) {
+                            $file = $request->file('heroes.' . $index . '.image_mobile');
+
+                            $fileName = $file->getClientOriginalName();
+                            $fileSize = $file->getSize();
+
+                            $uploadMobile = $cloudinary->uploadApi()->upload(
+                                $file->getRealPath(), 
+                                ['folder' => 'hero_banners/mobile']
+                            );
+
+                            $url = $uploadMobile['secure_url'];
+                            $publicId = $uploadMobile['public_id'];
+
+                            $saveImage = Images::create([
+                                'image_url' => $url, 
+                                'image_public_id' => $publicId,
+                                'file_name' => $fileName, 
+                                'image_size' => $fileSize
+                            ]);
+
+                            $mobileId = $saveImage->id;
+                        }
+
+                        HeroContent::where('id', '=', $logId)->update([
+                            'title' => $heroData['title'], 
+                            'subtitle' => $heroData['subtitle'],
+                            'is_masked' => filter_var($heroData['is_masked'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                            'position' => $heroData['position'] ?? 'left',
+                            'opacity' => $heroData['opacity'] ?? 0,
+                            'image_id' => $desktopId,
+                            'image_mobile_id' => $mobileId,
+                        ]);
+                    }
+                }
+
+                if ($request->has('about')) {
+                    // 
+                }
             });
         }
 
