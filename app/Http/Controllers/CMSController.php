@@ -93,7 +93,9 @@ class CMSController extends Controller
             'service' => $service
         ];
 
-        Log::info('data : ', [$data]);
+        $role = request()->user()->role;
+
+        Log::info('data : ', [$role]);
 
         if ($abouts->bg_config && is_string($abouts->bg_config)) {
             $abouts->bg_config = json_decode($abouts->bg_config, true);
@@ -107,7 +109,7 @@ class CMSController extends Controller
             $service->bg_config = json_decode($service->bg_config, true);
         }
 
-        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service', 'status'));
+        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service', 'status', 'role'));
     }
 
     public function create(Request $request)
@@ -310,6 +312,34 @@ class CMSController extends Controller
 
     public function update(Request $request, $id)
     {
-        // 
+        $status = $request->input('status');
+        $logId = $request->log_id;
+        $notes = $request->notes;
+
+        if ($status === 'approved') {
+            $nowShowing = CMSLogs::where('status', '=', 'approved')->first();
+
+            if ($nowShowing) {
+                $nowShowing->update([
+                    'status' => 'expired'
+                ]);
+            } 
+
+            CMSLogs::where('id', '=', $logId)->update([
+                'status' => 'approved'
+            ]);
+
+        } else if ($status === 'rejected') {
+            CMSLogs::where('id', '=', $logId)->update([
+                'status' => 'rejected', 
+                'notes' => $notes
+            ]);
+        } else {
+            return DB::transaction(function () use ($request, $logId, $status) {
+                // 
+            });
+        }
+
+        return redirect()->route('cms.log')->with('success', 'Data berhasil diupdate');
     }
 }
