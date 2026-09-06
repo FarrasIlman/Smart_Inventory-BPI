@@ -48,7 +48,15 @@ class CMSController extends Controller
     public function cmslog()
     {
 
-        $logs = CMSLogs::orderBy('created_at', 'desc')->get();
+        $auth = request()->user()->role;
+
+        $logs = collect();
+ 
+        if ($auth === 'admin') {
+            $logs = CMSLogs::whereNotIn('status', ['draft'])->orderBy('created_at', 'desc')->get();
+        } else {
+            $logs = CMSLogs::orderBy('created_at', 'desc')->get();
+        }
 
         $logs->transform(function ($log) {
             $log->status_label = $this->convertStatus($log->status);
@@ -74,6 +82,7 @@ class CMSController extends Controller
     {
         $log = CMSLogs::findOrFail($id);
         $log_id = $log->id;
+        $status = $log->status;
         $heroes = HeroContent::with(['image', 'imageMobile'])->where('log_id', $id)->get();
         $abouts = AboutUs::with('image')->where('log_id', $id)->first();
         $service = Services::with('details.image')->where('log_id', $id)->first();
@@ -98,7 +107,7 @@ class CMSController extends Controller
             $service->bg_config = json_decode($service->bg_config, true);
         }
 
-        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service'));
+        return view('cms.detailhomepage', compact('log_id', 'heroes', 'abouts', 'service', 'status'));
     }
 
     public function create(Request $request)
@@ -106,10 +115,22 @@ class CMSController extends Controller
 
         return DB::transaction(function () use ($request) {
 
+            $status = $request->input('status');
+
+            $saveStatus = '';
+            $saveNotes = '';
+
+            if ($status === 'draft') {
+                $saveStatus = 'draft';
+            } else {
+                $saveStatus = 'waiting_approval';
+                $saveNotes = $request->notes;
+            }
+
             $log = CMSLogs::create([
                 'created_by' => Auth::user()?->username,
-                'status' => 'waiting_approval',
-                'notes' => $request->notes,
+                'status' => $saveStatus,
+                'notes' => $saveNotes,
             ]);
 
             $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
@@ -285,5 +306,10 @@ class CMSController extends Controller
             return redirect()->route('cms.log')->with('success', 'Banner homepage berhasil dibuat');
         });
 
+    }
+
+    public function update(Request $request, $id)
+    {
+        // 
     }
 }

@@ -70,6 +70,7 @@
                 </a>
                 @endif
 
+                @if (in_array(auth()->user()->role, ['admin', 'marketing']))
                 <div x-data="{open: false}">
                     <button @click="open = !open" class="flex items-center justify-between w-full p-3">
                         <div class="flex items-center">
@@ -87,6 +88,7 @@
                         <a href="{{ route('cms.log') }}" class="block text-xs text-slate-500 hover:text-white transition">Homepage</a>
                     </div>
                 </div>
+                @endif
 
                 <div x-data="{ open: false }">
                     <button @click="open = !open" class="sidebar-item w-full flex items-center justify-between p-3 rounded-xl focus:outline-none transition">

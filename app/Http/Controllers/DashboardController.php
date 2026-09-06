@@ -48,6 +48,9 @@ class DashboardController extends Controller
 
                 return view('dashboard.admin', compact('omzetJual', 'labaBersih', 'totalBelanja', 'pipeline', 'criticalStock', 'safeStock', 'monthlyData', 'activeProduction', 'activeShipping', 'start_date', 'end_date'));
 
+            
+            case 'marketing': 
+                return redirect()->route('cms.log');
 
             // =========================================================================
             // DASHBOARD 2: CUSTOMER HANDLE (PESANAN, PRODUK, PRODUKSI, PENGIRIMAN - TANPA KEUANGAN)

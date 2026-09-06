@@ -52,6 +52,8 @@ class CMSController extends Controller
                 'service' => $service
             ];
 
+            Log::info('api data : ', [$data]);
+
             return response()->json([
                 'status' => 'success', 
                 'data' => $data, 
